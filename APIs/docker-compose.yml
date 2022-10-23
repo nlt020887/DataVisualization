@@ -1,0 +1,34 @@
+version: '3.4'
+
+networks:
+  backend:
+
+services:  
+    WebApiGateway:
+        container_name: api-webapigateway
+        image: ${DOCKER_REGISTRY-}webapigateway
+        build:
+          context: .
+          dockerfile: ApiGateway/WebApiGateway/Dockerfile
+        ports:
+          - 8080:80
+        networks:
+          - backend
+
+    accountsapi:
+        container_name: api-accountsapi
+        image: ${DOCKER_REGISTRY-}accountsapi
+        build:
+          context: .
+          dockerfile: Services/System/Accounts.API/Dockerfile       
+        networks:
+          - backend
+    masterdatawebapi:
+        container_name: api-masterdata
+        image: ${DOCKER_REGISTRY-}datatypemanagement.api
+        build:
+          context: .
+          dockerfile: Services/DataVisualiztion/DataTypeManagement.API/Dockerfile       
+        networks:
+          - backend
+

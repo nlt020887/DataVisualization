@@ -1,0 +1,60 @@
+{
+  "Routes": [
+    // Authentication Web API
+    {
+      "UpstreamPathTemplate": "/api/Account",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/authenticate"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/register",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/register"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/getlistuser",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/getlistuser"
+    },
+    {
+      "DownstreamPathTemplate": "/api/WeatherForecast",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "masterdatawebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/WeatherForecast",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:8080",
+    "RateLimitOptions": {
+      "QuotaExceededMessage": "Request not allowed",
+      "HttpStatusCode": 909
+    }
+  }
+}
