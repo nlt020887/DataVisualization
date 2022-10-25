@@ -6,6 +6,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+
 namespace JwtAuthenticationManager
 {
     public class JwtTokenHandler
@@ -23,13 +26,13 @@ namespace JwtAuthenticationManager
             };
         }
 
-        public AuthenticationResponse? GenerateJwtToken(AuthenticationRequest authenticationRequest)
+        public async Task<AuthenticationResponse?> GenerateJwtToken(AuthenticationRequest authenticationRequest,IdentityUser identityUser, List<string> roles)
         {
             if (string.IsNullOrWhiteSpace(authenticationRequest.UserName) || string.IsNullOrWhiteSpace(authenticationRequest.Password))
                 return null;
 
             /* Validation */
-            var userAccount = _userAccountList.Where(x => x.UserName == authenticationRequest.UserName && x.Password == authenticationRequest.Password).FirstOrDefault();
+            var userAccount = identityUser;//await _userAccountList.Where(x => x.UserName == authenticationRequest.UserName && x.Password == authenticationRequest.Password).FirstOrDefault();
             if (userAccount == null) return null;
 
             var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(JWT_TOKEN_VALIDITY_MINS);
@@ -40,11 +43,11 @@ namespace JwtAuthenticationManager
                 //,
                 //new Claim(JwtRegisteredClaimNames.Email, authenticationRequest.Email)
             });
-            if (userAccount.Roles!=null && userAccount.Roles.Length >0)
+            if (roles != null && roles.Count >0)
             {
-                foreach (var item in userAccount.Roles)
+                foreach (var item in roles)
                 {
-                    claimsIdentity.AddClaim(new Claim(ClaimTypes.Role,item.ToString()));
+                    claimsIdentity.AddClaim(new Claim(ClaimTypes.Role,item));
                 }
             }
 

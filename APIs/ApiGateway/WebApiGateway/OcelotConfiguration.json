@@ -14,6 +14,18 @@
       "DownstreamPathTemplate": "/api/Account/authenticate"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/LogOut",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/LogOut"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamScheme": "http",
@@ -24,6 +36,18 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/register"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/verifyemail",
+      "UpstreamHttpMethod": [ "get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/VerifyEmail"
     },
     {
       "UpstreamPathTemplate": "/api/Account/getlistuser",

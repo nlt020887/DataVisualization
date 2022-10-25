@@ -21,5 +21,6 @@ namespace JwtAuthenticationManager.Models
 
         [Required(ErrorMessage = "PasswordConfirm is required")]
         public string? PasswordConfirm { get; set; }
+
     }
 }
