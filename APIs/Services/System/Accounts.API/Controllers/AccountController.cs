@@ -59,6 +59,67 @@ namespace Accounts.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user == null || !(await _userManager.CheckPasswordAsync(user.Result, model.OldPassword)))
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    var result   = await _userManager.ChangePasswordAsync(user.Result, model.OldPassword, model.NewPassword);
+                    if (!result.Succeeded)
+                        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again." });
+                }
+
+                return Ok(new Response
+                {
+                    Status = "Success",
+                    Message = "Change passwor successfull!"
+                });
+            }
+
+            // If we got this far, something failed, redisplay form
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByNameAsync(model.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return BadRequest();
+                }
+                var emailTo = new List<EmailAddress>();
+                emailTo.Add(new EmailAddress() { DisplayName = user.UserName, Address = user.Email });
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var confirmationLink =
+                    _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
+                    + Url.Action(nameof(VerifyEmail), "Account", new { userId = user.Id, code });
+                Task<string> content = GetContent(confirmationLink);
+                await _emailSender.SendEmailAsync(new MailData(emailTo, "Confirm your email", content.Result, null));
+
+                return Ok(new Response
+                {
+                    Status = "Success",
+                    Message = "Email reset passwor send to your email!"
+                });
+            }
+
+            // If we got this far, something failed, redisplay form
+            return BadRequest();
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
