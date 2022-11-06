@@ -6,7 +6,7 @@ networks:
 services:  
     WebApiGateway:
         container_name: api-webapigateway
-        image: ${DOCKER_REGISTRY-}webapigateway
+        image: ${DOCKER_REGISTRY-}webapigateway:v.1.0
         build:
           context: .
           dockerfile: ApiGateway/WebApiGateway/Dockerfile
@@ -17,7 +17,7 @@ services:
 
     accountsapi:
         container_name: api-accountsapi
-        image: ${DOCKER_REGISTRY-}accountsapi
+        image: ${DOCKER_REGISTRY-}accountsapi:v.1.0
         build:
           context: .
           dockerfile: Services/System/Accounts.API/Dockerfile       
@@ -25,7 +25,7 @@ services:
           - backend
     masterdatawebapi:
         container_name: api-masterdata
-        image: ${DOCKER_REGISTRY-}datatypemanagement.api
+        image: ${DOCKER_REGISTRY-}datatypemanagement.api:v.1.0
         build:
           context: .
           dockerfile: Services/DataVisualiztion/DataTypeManagement.API/Dockerfile       

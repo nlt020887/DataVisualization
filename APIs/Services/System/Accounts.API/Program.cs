@@ -13,18 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 // For Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(config =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(config =>
 {
     config.Password.RequiredLength = 4;
     config.Password.RequireDigit = false;
     config.Password.RequireNonAlphanumeric = false;
     config.Password.RequireUppercase = false;
-    config.SignIn.RequireConfirmedEmail = true;
-})
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+    config.SignIn.RequireConfirmedEmail = true;      
+    
+}).AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 //Emailkit
 var emailConfig = builder.Configuration

@@ -26,6 +26,18 @@
       "DownstreamPathTemplate": "/api/Account/LogOut"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/ChangePassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ChangePassword"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamScheme": "http",

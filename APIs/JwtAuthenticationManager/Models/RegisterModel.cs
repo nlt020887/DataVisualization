@@ -22,5 +22,14 @@ namespace JwtAuthenticationManager.Models
         [Required(ErrorMessage = "PasswordConfirm is required")]
         public string? PasswordConfirm { get; set; }
 
+        [Required(ErrorMessage = "Phone number is required")]
+        public string? PhoneNumber{ get; set; }
+
+        public string Address { get; set; }
+
+        public bool IsNewsFeed { get; set; } = false;
+        public string FullName { get; set; }
+        
+
     }
 }

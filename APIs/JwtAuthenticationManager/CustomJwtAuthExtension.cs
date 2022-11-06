@@ -17,6 +17,7 @@ namespace JwtAuthenticationManager
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                
             }).AddJwtBearer(o =>
             {
                 o.RequireHttpsMetadata = false;
@@ -26,7 +27,8 @@ namespace JwtAuthenticationManager
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtTokenHandler.JWT_SECURITY_KEY))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtTokenHandler.JWT_SECURITY_KEY)),                    
+                    ValidateLifetime = true,
                 };
             });
         }

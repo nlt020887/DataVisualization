@@ -1,4 +1,5 @@
-﻿using Accounts.API.EmailService;
+﻿using Accounts.API.DbContext;
+using Accounts.API.EmailService;
 using Accounts.API.Models;
 using JwtAuthenticationManager;
 using JwtAuthenticationManager.Models;
@@ -6,9 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Bcpg;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
 
 namespace Accounts.API.Controllers
@@ -18,12 +22,13 @@ namespace Accounts.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly JwtTokenHandler _jwtTokenHandler;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ApplicationDbContext dbContext;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IEmailSender _emailSender;
         public AccountController(JwtTokenHandler jwtTokenHandler,
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager
             , IEmailSender emailService, 
             IConfiguration configuration
@@ -43,15 +48,25 @@ namespace Accounts.API.Controllers
                 return Unauthorized();
             AuthenticationResponse authenticationResponse = null;
             var user = await _userManager.FindByNameAsync(authenticationRequest.UserName);
+            if (user == null)
+                return Unauthorized();
+            else
+            if (!user.EmailConfirmed)
+            {
+                return StatusCode(StatusCodes.Status102Processing, new Response { Status = "Error", Message = "Please check your email to confirm your account!" });
+            }
             if (user != null &&
                 await _userManager.CheckPasswordAsync(user, authenticationRequest.Password))
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 authenticationResponse = await _jwtTokenHandler.GenerateJwtToken(authenticationRequest,user,roles.ToList<string>());
-                if (authenticationResponse == null) 
+                if (authenticationResponse == null)
                     return Unauthorized();
                 else
+                {
+                    await _userManager.SetAuthenticationTokenAsync(user, "Jwt", "JwtToken", authenticationResponse.JwtToken);
                     return authenticationResponse;
+                }
             }
             else
                 return Unauthorized();
@@ -122,15 +137,26 @@ namespace Accounts.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
+            if(string.IsNullOrEmpty(model.Email))
+                return StatusCode(StatusCodes.Status204NoContent, new Response { Status = "Error", Message = "Email can not empty!" });
+
+            if (string.IsNullOrEmpty(model.Password) || !model.Password.Equals(model.PasswordConfirm))
+                return StatusCode(StatusCodes.Status204NoContent, new Response { Status = "Error", Message = "Invaild confirmation password!" });
+
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
-            IdentityUser user = new()
+            ApplicationUser user = new()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                UserName = model.Username,
+                PhoneNumber = model.PhoneNumber,
+                IsNewsFeed = model.IsNewsFeed,
+                Address = model.Address,
+                CreatedDate = DateTime.Now,
+                FullName = model.FullName
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -154,7 +180,7 @@ namespace Accounts.API.Controllers
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "User created successfully!",
+                    Message = "User created successfully!  ",
                     Data = value
                 });
             }
@@ -214,13 +240,54 @@ namespace Accounts.API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetListUser()
+        public async Task<IActionResult> GetListUser(int pageNumber = 1, int pageSize = 5)
         {
-            var userExists = _userManager.Users;
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Not found data!" });
-            var data = JsonConvert.SerializeObject(userExists);
-            return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = data });
+
+            try
+            {
+                var userExists = await GetUsersAsync();
+
+                if (userExists == null)
+                    return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Not found data!" });
+                else
+                {
+                    var qry = _userManager.Users.Where(u => u.Id != String.Empty)
+                         .Select(u => new UserInfoResponse
+                         {
+                             UserId = u.Id,
+                             UserName = u.UserName,
+                             PhoneNumber = u.PhoneNumber,
+                             Address = u.Address,
+                             Company = u.Company,
+                             TaxCode = u.TaxCode,
+                             Email = u.Email,
+                             ConfirmEmailDate = u.ConfirmEmailDate,
+                             EmailConfirmed = u.EmailConfirmed
+                         });
+                    var result = from s in qry
+                                 select s;
+
+                    //var values =  new PaginatedList<UserInfoResponse>(qry,qry.Count,pageNumber, pageSize);
+                    //IEnumerable<UserInfoResponse> products = ;
+
+                    PaginatedList<UserInfoResponse> a = await PaginatedList<UserInfoResponse>.CreateAsync(qry, pageNumber, pageSize);
+                    ResutlPagingModel<UserInfoResponse> resutlPagingModel = new ResutlPagingModel<UserInfoResponse>();
+                    resutlPagingModel.TotalPages = a.TotalPages;
+                    resutlPagingModel.PageIndex = a.PageIndex;
+                    resutlPagingModel.Items = a.ToList<UserInfoResponse>();
+                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(resutlPagingModel) });
+                }
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        private async Task<List<ApplicationUser>> GetUsersAsync()
+        {
+            return await _userManager.Users.ToListAsync();
+            
         }
     }
 }
