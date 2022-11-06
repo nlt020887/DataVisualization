@@ -1,0 +1,64 @@
+API ACCOUNT.
+1. Login
+-> http://localhost:8080/api/account
+Body:
+{
+    "UserName": "tuannl16",
+    "Password": "Abc@1234"
+}
+Response: 
+{
+    "userName": "tuannl16",
+    "jwtToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidHVhbm5sMTYiLCJyb2xlIjoiVXNlciDEkcSDbmcga8O9IGNoxrBhIMSRxrDhu6NjIHBow6JuIHF1eeG7gW4iLCJuYmYiOjE2Njc3Mjc5OTYsImV4cCI6MTY2NzcyOTE5NiwiaWF0IjoxNjY3NzI3OTk2fQ.Qb69RI0VXBJH31s2E7HAMN-IfrRNu_uh9YJqbupbF90",
+    "expiresIn": 1199
+}
+
+2. Đăng ký: 
+http://localhost:8080/api/Account/register
+{
+    "Username": "tuannl17",
+    "Email": "linhtuanit@gmail.com",
+	"FullName": "",
+    "Password": "Abc@1234",
+    "PasswordConfirm": "Abc@1234",
+    "PhoneNumber": "0902980179",
+    "Address": "12 le loi, phuong 4, go vap",
+    "IsNewsFeed": true
+}
+
+
+3. Trang quan ly danh sach userName.
+-> http://localhost:8080/api/Account/GetListUser?pageNumber=1&pageSize=10
+
+4. Cập nhật quyền(Roles)
+-> Tối cập nhật
+
+5. Quên mật khẩu
+ForgotPassword-> 
+6. Change password.
+
+API-PORTFOLIO.
+  Portfolio
+  Asset
+  Asset’s Market Price
+  Tax and fee
+=> deadline: 14/11
+ 
+  Transaction (buy/sell Asset)
+  -> Ve UI (Class model) - Trong tuần sau
+  Investor (buy/sell Portfolio)
+  -> Ve UI (Class model) - Trong tuần sau
+=> Deadline 19/11
+
+ Cash Management
+ Cert Balance
+ Cash Balance
+ Portfolio Balance
+ EOD Net Asset Value
+ Portfolio Report
+ NAV Report
+ Investor Report
+
+
+
+
