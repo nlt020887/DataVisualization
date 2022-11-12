@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 );
 
 // For Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(config =>
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(config =>
 {
     config.Password.RequiredLength = 4;
     config.Password.RequireDigit = false;

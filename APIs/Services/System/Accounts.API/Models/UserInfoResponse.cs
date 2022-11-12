@@ -1,4 +1,6 @@
-﻿namespace Accounts.API.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace Accounts.API.Models
 {
     public class UserInfoResponse
     {
@@ -14,6 +16,7 @@
         public string TaxCode { get; set; }
         public Boolean IsNewsFeed { get; set; }
         public Boolean EmailConfirmed { get; set; }
+        public List<ApplicationRole> Roles { get; set; }
 
     }
 }

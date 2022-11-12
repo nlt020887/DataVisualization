@@ -24,14 +24,16 @@ namespace Accounts.API.Controllers
         private readonly JwtTokenHandler _jwtTokenHandler;
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        
         private readonly IConfiguration _configuration;
         private readonly IEmailSender _emailSender;
         public AccountController(JwtTokenHandler jwtTokenHandler,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<ApplicationRole> roleManager
             , IEmailSender emailService, 
-            IConfiguration configuration
+            IConfiguration configuration,
+            ApplicationDbContext _dbContext
             )
         {
             _jwtTokenHandler = jwtTokenHandler;
@@ -39,6 +41,7 @@ namespace Accounts.API.Controllers
             _roleManager = roleManager;
             _emailSender = emailService;
             _configuration = configuration;
+            dbContext = _dbContext;
         }
 
         [HttpPost]
@@ -230,7 +233,8 @@ namespace Accounts.API.Controllers
         [Authorize]
         public IActionResult LogOut()
         {
-            HttpContext.Session.Clear();
+
+            string jwt = HttpContext.Request.Headers.Authorization;
             return Ok(new Response
             {
                 Status = "Success",
@@ -242,16 +246,51 @@ namespace Accounts.API.Controllers
         [Authorize]
         public async Task<IActionResult> GetListUser(int pageNumber = 1, int pageSize = 5)
         {
+            try
+            {
+                var qry = _userManager.Users.Where(u => u.Id != String.Empty)
+                        .Select(u => new UserInfoResponse
+                        {
+                            UserId = u.Id,
+                            UserName = u.UserName,
+                            PhoneNumber = u.PhoneNumber,
+                            Address = u.Address,
+                            Company = u.Company,
+                            TaxCode = u.TaxCode,
+                            Email = u.Email,
+                            ConfirmEmailDate = u.ConfirmEmailDate,
+                            EmailConfirmed = u.EmailConfirmed
+                        });
+
+
+                //var values =  new PaginatedList<UserInfoResponse>(qry,qry.Count,pageNumber, pageSize);
+                //IEnumerable<UserInfoResponse> products = ;
+
+                PaginatedList<UserInfoResponse> a = await PaginatedList<UserInfoResponse>.CreateAsync(qry, pageNumber, pageSize);
+                ResutlPagingModel<UserInfoResponse> resutlPagingModel = new ResutlPagingModel<UserInfoResponse>();
+                resutlPagingModel.TotalPages = a.TotalPages;
+                resutlPagingModel.PageIndex = a.PageIndex;
+                resutlPagingModel.Items = a.ToList<UserInfoResponse>();
+                return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(resutlPagingModel) });
+                
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
 
             try
             {
-                var userExists = await GetUsersAsync();
+                if(string.IsNullOrEmpty(userId))
+                    return Ok(new Response { Status = "Error", Message = "User id can't empty!", Data = null });
 
-                if (userExists == null)
-                    return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Not found data!" });
-                else
-                {
-                    var qry = _userManager.Users.Where(u => u.Id != String.Empty)
+                var qry = _userManager.Users.Where(u => u.Id == userId)
                          .Select(u => new UserInfoResponse
                          {
                              UserId = u.Id,
@@ -264,19 +303,116 @@ namespace Accounts.API.Controllers
                              ConfirmEmailDate = u.ConfirmEmailDate,
                              EmailConfirmed = u.EmailConfirmed
                          });
-                    var result = from s in qry
-                                 select s;
+                var userInfo = qry.First<UserInfoResponse>();
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null) return BadRequest();
 
-                    //var values =  new PaginatedList<UserInfoResponse>(qry,qry.Count,pageNumber, pageSize);
-                    //IEnumerable<UserInfoResponse> products = ;
+               IList<string> roleNames =  await _userManager.GetRolesAsync(user);
+                
+                var roles = _roleManager.Roles.Where(r => roleNames.Contains(r.Name)).ToList();
+                if (roles != null && roles.Count > 0)
+                    userInfo.Roles = roles;
 
-                    PaginatedList<UserInfoResponse> a = await PaginatedList<UserInfoResponse>.CreateAsync(qry, pageNumber, pageSize);
-                    ResutlPagingModel<UserInfoResponse> resutlPagingModel = new ResutlPagingModel<UserInfoResponse>();
-                    resutlPagingModel.TotalPages = a.TotalPages;
-                    resutlPagingModel.PageIndex = a.PageIndex;
-                    resutlPagingModel.Items = a.ToList<UserInfoResponse>();
-                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(resutlPagingModel) });
+                if (qry!=null && qry.Count()>0)
+                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(userInfo)});
+                  else
+                    return Ok(new Response { Status = "Error", Message = "User not found!", Data = null});
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetRoles()
+        {
+
+            try
+            {
+                var Roles = _roleManager.Roles;
+                
+                if (Roles != null && Roles.Count() > 0)
+                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(Roles) });
+                else
+                    return Ok(new Response { Status = "Error", Message = "User not found!", Data = null });
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserInfo(UserInfoResponse user)
+        {
+
+            try
+            {
+                if (user == null ||  string.IsNullOrEmpty(user.UserId))
+                    return Ok(new Response { Status = "Error", Message = "User info is not null!", Data = null });
+
+                var userCheck = await _userManager.FindByIdAsync(user.UserId);
+                if (userCheck == null) 
+                    return Ok(new Response { Status = "Error", Message = "User does not exist!", Data = null });
+
+                userCheck.FullName = user.FullName;
+                userCheck.Address = user.Address;
+                userCheck.PhoneNumber = user.PhoneNumber;
+                userCheck.IsNewsFeed = user.IsNewsFeed;
+
+                IList<string> roleNames = await _userManager.GetRolesAsync(userCheck);
+                ///check if the user currently has any roles
+                var currentRoles = await _userManager.GetRolesAsync(userCheck);
+                ///remove user from current roles, if any
+                IdentityResult removeResult = await _userManager.RemoveFromRolesAsync(userCheck, currentRoles.ToArray());             
+                if (!removeResult.Succeeded)
+                {
+                    ModelState.AddModelError("", "Failed to remove user roles");
+                    return BadRequest(ModelState);
                 }
+                //var roles = _roleManager.Roles.Where(r => roleNames.Contains(r.Name)).ToList();
+
+                var qry = user.Roles.Where(o => 1 == 1)
+                         .Select(o => o.Id);
+                ///assign user to the new roles
+                IdentityResult addResult = await _userManager.AddToRolesAsync(userCheck, qry.ToArray());
+
+                if (!addResult.Succeeded)
+                {
+                    ModelState.AddModelError("", "Failed to add user roles");
+                    return BadRequest(ModelState);
+                }
+                return Ok(new Response { Status = "Success", Message = "Update user successfully!", Data = null });
+             
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateRole(RoleInfo roleInfo)
+        {
+            try
+            {
+                if (await _roleManager.FindByIdAsync(roleInfo.RoleId) ==null)
+                {
+                    await _roleManager.CreateAsync(new ApplicationRole() { Id = roleInfo.RoleId, Name = roleInfo.RoleName, Description = roleInfo. Description});
+                }
+                else
+                    return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message =  "Role is exist"});
+
+                return Ok(new Response
+                {
+                    Status = "Success",
+                    Message = "Confirn your email successfully!"
+                });
+
             }
             catch (Exception EX)
             {

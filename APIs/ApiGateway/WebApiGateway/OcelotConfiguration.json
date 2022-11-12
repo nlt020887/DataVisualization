@@ -14,7 +14,7 @@
       "DownstreamPathTemplate": "/api/Account/authenticate"
     },
     {
-      "UpstreamPathTemplate": "/api/Account/LogOut",
+      "UpstreamPathTemplate": "/api/Account/GetUserById",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -23,7 +23,19 @@
           "Port": 80
         }
       ],
-      "DownstreamPathTemplate": "/api/Account/LogOut"
+      "DownstreamPathTemplate": "/api/Account/GetUserById"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/UpdateUserInfo",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/UpdateUserInfo"
     },
     {
       "UpstreamPathTemplate": "/api/Account/ChangePassword",
@@ -72,6 +84,30 @@
         }
       ],
       "DownstreamPathTemplate": "/api/Account/getlistuser"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/CreateRole",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/CreateRole"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/GetRoles",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { 
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/GetRoles"
     },
     {
       "DownstreamPathTemplate": "/api/WeatherForecast",
