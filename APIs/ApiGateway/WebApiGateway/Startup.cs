@@ -28,19 +28,18 @@ namespace WebApiGateway
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddCors(options =>
             {
-
-                options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy.WithOrigins("http://localhost:8081")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
-                    });
+                options.AddPolicy("CorsPolicy",
+                builder => builder.WithOrigins("http://localhost:44466", "https://localhost:44466")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
             });
+        
 
-            services.AddOcelot();
+        services.AddOcelot();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -49,7 +48,7 @@ namespace WebApiGateway
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 
             if (env.IsDevelopment())
@@ -69,8 +68,9 @@ namespace WebApiGateway
             {
                 endpoints.MapControllers();
             });
-            app.UseOcelot();
-            app.UseCors();
+            
+            app.UseCors("CorsPolicy");
+            await app.UseOcelot();
         }
     }
 }
