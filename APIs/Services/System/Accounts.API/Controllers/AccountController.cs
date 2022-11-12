@@ -158,8 +158,10 @@ namespace Accounts.API.Controllers
                 PhoneNumber = model.PhoneNumber,
                 IsNewsFeed = model.IsNewsFeed,
                 Address = model.Address,
+                Company  = model.Company,
                 CreatedDate = DateTime.Now,
-                FullName = model.FullName
+                FullName = model.FullName,
+                TaxCode = model.TaxCode
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)

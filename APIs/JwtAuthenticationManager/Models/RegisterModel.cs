@@ -26,10 +26,11 @@ namespace JwtAuthenticationManager.Models
         public string? PhoneNumber{ get; set; }
 
         public string Address { get; set; }
+        public string Company { get; set; }
 
         public bool IsNewsFeed { get; set; } = false;
         public string FullName { get; set; }
-        
+        public string TaxCode { get; set; }
 
     }
 }

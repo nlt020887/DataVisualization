@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
-
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // For Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(config =>
 {
