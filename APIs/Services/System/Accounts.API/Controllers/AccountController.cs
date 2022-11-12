@@ -67,7 +67,17 @@ namespace Accounts.API.Controllers
                     return Unauthorized();
                 else
                 {
+                    HttpContext.Response.Cookies.Append("jwtToken", authenticationResponse.JwtToken,
+                    new CookieOptions
+                    {
+                        Expires = DateTime.Now.AddDays(7),
+                        HttpOnly = true,
+                        Secure = true,
+                        IsEssential = true,
+                        SameSite = SameSiteMode.None
+                    });
                     await _userManager.SetAuthenticationTokenAsync(user, "Jwt", "JwtToken", authenticationResponse.JwtToken);
+                    
                     return authenticationResponse;
                 }
             }

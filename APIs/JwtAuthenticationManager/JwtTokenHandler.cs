@@ -8,6 +8,7 @@ using System.Text;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace JwtAuthenticationManager
 {
@@ -66,6 +67,7 @@ namespace JwtAuthenticationManager
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
             var securityToken = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
             var token = jwtSecurityTokenHandler.WriteToken(securityToken);
+            
 
             return new AuthenticationResponse
             {
