@@ -14,5 +14,6 @@ namespace Accounts.API.Models
         public DateTime? ConfirmEmailDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string UpdatedUser { get; set; }
+        public bool? IsEnabled { get; set; } = true;
     }
 }

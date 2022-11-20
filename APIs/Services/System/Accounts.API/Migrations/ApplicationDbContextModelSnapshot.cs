@@ -73,10 +73,10 @@ namespace Accounts.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ConfirmEmailDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -88,6 +88,9 @@ namespace Accounts.API.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsNewsFeed")
                         .HasColumnType("boolean");
@@ -127,7 +130,7 @@ namespace Accounts.API.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UpdatedUser")
                         .IsRequired()

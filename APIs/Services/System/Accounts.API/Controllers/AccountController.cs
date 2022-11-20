@@ -58,6 +58,12 @@ namespace Accounts.API.Controllers
             {
                 return StatusCode(StatusCodes.Status102Processing, new Response { Status = "Error", Message = "Please check your email to confirm your account!" });
             }
+            else
+            if (!user.IsEnabled.Value)
+            {
+                return StatusCode(StatusCodes.Status102Processing, new Response { Status = "Error", Message = "The account has been locked!" });
+            }
+
             if (user != null &&
                 await _userManager.CheckPasswordAsync(user, authenticationRequest.Password))
             {
@@ -71,8 +77,8 @@ namespace Accounts.API.Controllers
                     new CookieOptions
                     {
                         Expires = DateTime.Now.AddDays(7),
-                        HttpOnly = true,
-                        Secure = true,
+                        HttpOnly = false,
+                        Secure = false,
                         IsEssential = true,
                         SameSite = SameSiteMode.None
                     });
