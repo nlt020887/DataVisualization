@@ -50,6 +50,30 @@
       "DownstreamPathTemplate": "/api/Account/ChangePassword"
     },
     {
+      "UpstreamPathTemplate": "/api/Account/forgotpassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ForgotPassword"
+    },
+    {
+      "UpstreamPathTemplate": "/api/Account/resetpassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "accountsapi",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/api/Account/ResetPassword"
+    },
+    {
       "UpstreamPathTemplate": "/api/Account/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamScheme": "http",
@@ -102,7 +126,7 @@
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { 
+        {
           "Host": "accountsapi",
           "Port": 80
         }
@@ -120,6 +144,43 @@
       ],
       "UpstreamPathTemplate": "/api/WeatherForecast",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    // Portfoilo API
+    {
+      "DownstreamPathTemplate": "/api/Portfolio/GetAllPortfolioPending",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/GetAllPortfolioPending",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Portfolio/GetAllPortfolio",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/GetAllPortfolio",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Portfolio/CreatePortfolio",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/CreatePortfolio",
+      "UpstreamHttpMethod": [ "POST" ]
     }
   ],
   "GlobalConfiguration": {
