@@ -126,12 +126,15 @@ namespace Accounts.API.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(model.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                try
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return BadRequest();
-                }
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user == null || !user.IsEnabled.Value)
+                    {
+                        // Don't reveal that the user does not exist or is not confirmed
+                        return BadRequest();
+                    }
+                
                 var emailTo = new List<EmailAddress>();
                 emailTo.Add(new EmailAddress() { DisplayName = user.UserName, Address = user.Email });
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -144,8 +147,14 @@ namespace Accounts.API.Controllers
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Email reset passwor send to your email!"
+                    Message = "Email reset passwor send to your email!",
+                    Data = code
                 });
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
 
             // If we got this far, something failed, redisplay form
@@ -161,8 +170,10 @@ namespace Accounts.API.Controllers
 
             if (string.IsNullOrEmpty(model.Password) || !model.Password.Equals(model.PasswordConfirm))
                 return StatusCode(StatusCodes.Status204NoContent, new Response { Status = "Error", Message = "Invaild confirmation password!" });
-
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByEmailAsync(model.Email);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Email already exists!" });
+            userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
@@ -191,7 +202,7 @@ namespace Accounts.API.Controllers
                 
                 var confirmationLink = 
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
-                    + Url.Action(nameof(VerifyEmail), "Account", new { userId = user.Id, _code.Result });
+                    + Url.Action(nameof(ResetPassword), "Account", new {Email=user.Email, userId = user.Id, _code.Result });
 
                 Task<string> content = GetContent(confirmationLink);
 
@@ -246,6 +257,40 @@ namespace Accounts.API.Controllers
             }    
             else
                 return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel resetPasswordModel)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            if(string.IsNullOrEmpty(resetPasswordModel.Password) || !string.Equals(resetPasswordModel.Password,resetPasswordModel.ConfirmPassword))
+                return Ok(new Response
+                {
+                    Status = "Error",
+                    Message = "The password is correct!"
+                });
+            var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
+            if (user == null)
+                return BadRequest();
+            var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
+            if (!resetPassResult.Succeeded)
+            {
+                foreach (var error in resetPassResult.Errors)
+                {
+                    ModelState.TryAddModelError(error.Code, error.Description);
+                }
+                return Ok(new Response
+                {
+                    Status = "Error",
+                    Message = "Reset password fail!"
+                });
+            }
+            return Ok(new Response
+            {
+                Status = "Error",
+                Message = "Reset password fail!"
+            });
         }
 
         [Authorize]
