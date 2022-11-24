@@ -32,14 +32,13 @@ namespace WebApiGateway
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                builder => builder.WithOrigins("http://localhost:44466", "https://localhost:44466")
+                builder => builder.WithOrigins("http://localhost:8081", "https://localhost:8081")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
             });
-        
 
-        services.AddOcelot();
+            services.AddOcelot();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

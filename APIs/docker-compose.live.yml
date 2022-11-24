@@ -1,0 +1,40 @@
+version: '3.4'
+
+networks:
+  backendlive:
+
+services:  
+    WebApiGateway:
+        container_name: api-webapigateway
+        image: tuannl/gatewayapi
+        ports:
+          - 8082:80
+        networks:
+          - backendlive
+
+    accountsapi:
+        container_name: api-accountsapi
+        image: tuannl/accountapi
+        #build:
+        #  context: .
+    #      dockerfile: Services/System/Accounts.API/Dockerfile       
+        networks:
+          - backendlive
+    #masterdatawebapi:
+    #    container_name: api-masterdata
+    #    image: ${DOCKER_REGISTRY-}datatypemanagement.api
+    #    build:
+    #      context: .
+    #      dockerfile: Services/DataVisualiztion/DataTypeManagement.API/Dockerfile       
+    #    networks:
+    #      - backendlive
+
+    portfoliowebapi:
+        container_name: api-portfolio
+        image: tuannl/portfolioapi
+        #build:
+        #  context: .
+        #  dockerfile: Services/PortfolioManagement/PortfolioApi/Dockerfile       
+        networks:
+          - backendlive
+

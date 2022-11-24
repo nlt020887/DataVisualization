@@ -32,3 +32,12 @@ services:
         networks:
           - backend
 
+    portfoliowebapi:
+        container_name: api-portfolio
+        image: ${DOCKER_REGISTRY-}portfolioapi
+        build:
+          context: .
+          dockerfile: Services/PortfolioManagement/PortfolioApi/Dockerfile       
+        networks:
+          - backend
+

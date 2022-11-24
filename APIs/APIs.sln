@@ -23,6 +23,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JwtAuthenticationManager", 
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{318304B4-436E-421F-AEEE-D5E494071426}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortfolioApi", "Services\PortfolioManagement\PortfolioApi\PortfolioApi.csproj", "{42B01CD9-572E-43FC-AF9C-044C0D663D88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{4DBF6026-7B20-43F6-8226-DE4BCF450459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.Core", "..\DataAccess.Core\DataAccess.Core.csproj", "{473285EA-F0B6-4E7D-B3AD-9284C992ECA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +55,14 @@ Global
 		{318304B4-436E-421F-AEEE-D5E494071426}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{318304B4-436E-421F-AEEE-D5E494071426}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{318304B4-436E-421F-AEEE-D5E494071426}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B01CD9-572E-43FC-AF9C-044C0D663D88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B01CD9-572E-43FC-AF9C-044C0D663D88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B01CD9-572E-43FC-AF9C-044C0D663D88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B01CD9-572E-43FC-AF9C-044C0D663D88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{473285EA-F0B6-4E7D-B3AD-9284C992ECA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{473285EA-F0B6-4E7D-B3AD-9284C992ECA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{473285EA-F0B6-4E7D-B3AD-9284C992ECA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{473285EA-F0B6-4E7D-B3AD-9284C992ECA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +75,8 @@ Global
 		{A8935021-66AB-4D6C-8DDA-748D4CC90B20} = {817B9230-77FC-4F98-964A-1ABBEEE803AB}
 		{6224AF93-8D24-4095-AB6B-EAC4B625E477} = {E382111D-02B0-4341-B8AD-84D80A3A8D6D}
 		{E6EFB693-7A5A-4A97-81A9-03AB0D888134} = {E382111D-02B0-4341-B8AD-84D80A3A8D6D}
+		{42B01CD9-572E-43FC-AF9C-044C0D663D88} = {187517D7-762B-4288-8D52-FAB6C1E27D72}
+		{473285EA-F0B6-4E7D-B3AD-9284C992ECA4} = {4DBF6026-7B20-43F6-8226-DE4BCF450459}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {306A4B7B-1E04-4C5D-8FD2-C4FE37AF2A12}
