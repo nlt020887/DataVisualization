@@ -48,7 +48,7 @@ namespace Accounts.API.Controllers
         public async Task<ActionResult<AuthenticationResponse?>> Authenticate([FromBody] AuthenticationRequest authenticationRequest)
         {
             if(string.IsNullOrEmpty(authenticationRequest.UserName)|| string.IsNullOrEmpty(authenticationRequest.Password))
-                return Unauthorized();
+               return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
             AuthenticationResponse authenticationResponse = null;
             var user = await _userManager.FindByNameAsync(authenticationRequest.UserName);
             if (user == null)
@@ -88,7 +88,7 @@ namespace Accounts.API.Controllers
                 }
             }
             else
-                return Unauthorized();
+              return  StatusCode(StatusCodes.Status401Unauthorized, new Response{ Status = "Error", Message = "UserName or Password is not correct!" });
 
         }
 
@@ -140,8 +140,9 @@ namespace Accounts.API.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var confirmationLink =
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
-                    + Url.Action(nameof(VerifyEmail), "Account", new { userId = user.Id, code });
-                Task<string> content = GetContent(confirmationLink);
+                    + Url.Action("ResetPassword", "Account", new { userId = user.Id, code });
+                 confirmationLink = confirmationLink.Replace("api/","");
+                Task<string> content = GetContentResetPass(confirmationLink);
                 await _emailSender.SendEmailAsync(new MailData(emailTo, "Confirm your email", content.Result, null));
 
                 return Ok(new Response
@@ -202,8 +203,8 @@ namespace Accounts.API.Controllers
                 
                 var confirmationLink = 
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
-                    + Url.Action(nameof(ResetPassword), "Account", new {Email=user.Email, userId = user.Id, _code.Result });
-
+                    + Url.Action(nameof(VerifyEmail),"Account", new {Email=user.Email, userId = user.Id, _code.Result });
+                confirmationLink = confirmationLink.Replace("api/","");
                 Task<string> content = GetContent(confirmationLink);
 
                 await _emailSender.SendEmailAsync(new MailData(emailTo,"Confirm your email",content.Result,null));
@@ -222,6 +223,12 @@ namespace Accounts.API.Controllers
         private async Task<String> GetContent(string link)
         {
             string html = string.Format("<a href =\"{0}\"> Verify email </a>",link);
+            return html;
+        }
+
+        private async Task<String> GetContentResetPass(string link)
+        {
+            string html = string.Format("<a href =\"{0}\"> Click this link for reset password </a>", link);
             return html;
         }
 
@@ -270,26 +277,28 @@ namespace Accounts.API.Controllers
                     Status = "Error",
                     Message = "The password is correct!"
                 });
-            var user = await _userManager.FindByEmailAsync(resetPasswordModel.Email);
+            var user = await _userManager.FindByIdAsync(resetPasswordModel.UserId);
             if (user == null)
                 return BadRequest();
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
             if (!resetPassResult.Succeeded)
             {
+                string mes = "Reset password fail!";
                 foreach (var error in resetPassResult.Errors)
                 {
                     ModelState.TryAddModelError(error.Code, error.Description);
+                    mes = error.Description;
                 }
                 return Ok(new Response
                 {
                     Status = "Error",
-                    Message = "Reset password fail!"
+                    Message = mes
                 });
             }
             return Ok(new Response
             {
-                Status = "Error",
-                Message = "Reset password fail!"
+                Status = "Success",
+                Message = "Reset password Success!"
             });
         }
 

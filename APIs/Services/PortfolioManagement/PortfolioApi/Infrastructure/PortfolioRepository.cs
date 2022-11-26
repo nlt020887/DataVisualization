@@ -8,15 +8,15 @@ namespace PortfolioApi.Infrastructure
 {
 	public class PortfolioRepository : IPortfolioRepository
 	{
-		private readonly IConfiguration _configuration;
-		private string ConnectionString
+		private readonly IConfiguration _configuration;        
+        private string ConnectionString
 		{
 			get {return _configuration.GetConnectionString("DefaultConnection"); }
 		}
         public PortfolioRepository(IConfiguration configuration)
 		{
-			_configuration = configuration;
-		}
+			_configuration = configuration;                     
+         }
 			
         public async Task<int> Approve(PortfolioApproveModel portfolioApproveModel)
 		{
@@ -27,7 +27,7 @@ namespace PortfolioApi.Infrastructure
 				var trans = db.BeginTransaction();
 				try
 				{
-					const string StoreProcedure_approve = "\"createportfolio\"";
+					const string StoreProcedure_approve = "\"approveportfolio\"";
 					var param = new
 					{
 						portfolioid = portfolioApproveModel.PortfolioId,
@@ -71,7 +71,8 @@ namespace PortfolioApi.Infrastructure
 						portfolioid = portfolioDataModel.PortfolioId,
 						portfolioname = portfolioDataModel.PortfolioName,
 						taxfeeid = portfolioDataModel.TaxFeeId,
-						createduser = portfolioDataModel.CreatedUser
+						createduser = portfolioDataModel.CreatedUser,
+                        isactive = portfolioDataModel.IsActive
 					};
 
 					var dynamicParameters = new DynamicParameters();
@@ -211,7 +212,7 @@ namespace PortfolioApi.Infrastructure
         {
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM \"PortfolioUser\" where \"PortfolioId\"=@portfolioid";
+                const string findQueryById = "SELECT * FROM \"PortfolioUsers\" where \"PortfolioId\"=@portfolioid";
                 var parameters = new { portfolioid = PortfolioId };
                 var results = await db.QueryAsync<PortfolioUserDataModel>(findQueryById, parameters);
                 return results;

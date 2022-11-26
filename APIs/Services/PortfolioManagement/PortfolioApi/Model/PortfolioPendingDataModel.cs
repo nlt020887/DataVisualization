@@ -17,7 +17,7 @@
         public string PortfolioId { get; set; }
 
         public string PortfolioName { get; set; }
-
+        public Boolean IsActive { get; set; }
         public string TaxFeeId { get; set; }
         public List<PortfolioUsersPendingDataModel> PortfolioUserPending { get; set; }
     }

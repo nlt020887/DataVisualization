@@ -13,4 +13,12 @@ namespace JwtAuthenticationManager.Models
         public string Message { get; set; }
         public string Data { get; set; }
     }
+    public class ResultModel
+    {
+        public bool IsError { get; set; }
+        public int StatusID { get; set; }
+        public string Message { get; set; }
+        public string MessageDetail { get; set; }
+        public object ResultObject { get; set; }
+    }
 }

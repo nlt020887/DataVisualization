@@ -23,6 +23,6 @@
         public string TaxFeeId { get; set; }
 
         public string CreatedUser { get; set; }
-       
+        public Boolean IsActive { get; set; }
     }
 }

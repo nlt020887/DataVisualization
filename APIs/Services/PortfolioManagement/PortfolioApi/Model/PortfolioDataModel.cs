@@ -28,6 +28,7 @@
 
         public DateTime? ApprovedDate { get; set; }
 
+        public Boolean IsActive { get; set; }
 
     }
 

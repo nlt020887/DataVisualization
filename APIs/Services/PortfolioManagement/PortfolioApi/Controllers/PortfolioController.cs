@@ -36,6 +36,7 @@ namespace PortfolioApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex,ex.Message);
                return new Response { Status = "Error", Message = ex.Message, Data = null};
             }
         }
@@ -45,12 +46,12 @@ namespace PortfolioApi.Controllers
         {
             try
             {
-                
                 var result = await _portfolioRepository.GetAllPortfolioPending();
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result.ToList()) };
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return new Response { Status = "Error", Message = ex.Message, Data = null };
             }
         }
@@ -65,6 +66,7 @@ namespace PortfolioApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return new Response { Status = "Error", Message = ex.Message, Data = null };
             }
         }
@@ -79,6 +81,7 @@ namespace PortfolioApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return new Response { Status = "Error", Message = ex.Message, Data = null };
             }
         }
@@ -95,6 +98,7 @@ namespace PortfolioApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return new Response { Status = "Error", Message = ex.Message, Data = null };
             }
         }
@@ -111,6 +115,7 @@ namespace PortfolioApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return new Response { Status = "Error", Message = ex.Message, Data = null };
             }
         }

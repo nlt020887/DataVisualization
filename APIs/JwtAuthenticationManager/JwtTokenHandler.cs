@@ -16,17 +16,7 @@ namespace JwtAuthenticationManager
     {
         public const string JWT_SECURITY_KEY = "yPkCqn4kSWLtaJwXvN2jGzpQRyTZ3gdXkt7FeBJP";
         public const string ISSUE_URL = "http://localhost:8080/";
-        private const int JWT_TOKEN_VALIDITY_MINS = 20;
-        private readonly List<UserAccount> _userAccountList;
-
-        public JwtTokenHandler()
-        {
-            _userAccountList = new List<UserAccount>
-            {
-                new UserAccount{ UserName = "admin", Password = "admin123",  Roles = new String[]{ "Administrator" } },
-                new UserAccount{ UserName = "user01", Password = "user01", Roles = new String[]{"User" } },
-            };
-        }
+        private const int JWT_TOKEN_VALIDITY_MINS = 20;      
 
         public async Task<AuthenticationResponse?> GenerateJwtToken(AuthenticationRequest authenticationRequest,IdentityUser identityUser, List<string> roles)
         {

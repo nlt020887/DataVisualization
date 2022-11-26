@@ -217,6 +217,19 @@
       ],
       "UpstreamPathTemplate": "/api/Portfolio/Approve",
       "UpstreamHttpMethod": [ "POST" ]
+    },
+    // TaxFee
+    {
+      "DownstreamPathTemplate": "/api/TaxFee/GetListTaxFee",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/TaxFee/GetListTaxFee",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "GlobalConfiguration": {
