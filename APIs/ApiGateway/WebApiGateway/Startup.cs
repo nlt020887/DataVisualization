@@ -37,9 +37,8 @@ namespace WebApiGateway
                 .AllowAnyHeader()
                 .AllowCredentials());
             });
-        
 
-        services.AddOcelot();
+            services.AddOcelot();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

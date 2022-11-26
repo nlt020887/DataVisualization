@@ -171,6 +171,30 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
+      "DownstreamPathTemplate": "/api/Portfolio/GetPortfolioById",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/GetPortfolioById",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Portfolio/GetPortfolioPendingById",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/GetPortfolioPendingById",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/Portfolio/CreatePortfolio",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -180,6 +204,18 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Portfolio/CreatePortfolio",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Portfolio/Approve",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/Approve",
       "UpstreamHttpMethod": [ "POST" ]
     }
   ],
