@@ -35,8 +35,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-/DataVisualization\APIs\Services\System\Accounts.API/appsettings.json
-/DataVisualization\APIs\Services\System\Accounts.API/appsettings.json
+/DataVisualization/APIs/Services/System/Accounts.API/appsettings.json
 /DataVisualization/APIs/Services/DataVisualiztion/DataTypeManagement.API/appsettings.json
 /DataVisualization/APIs/Services/PortfolioManagement/PortfolioApi/appsettings.json
 
@@ -67,6 +66,7 @@ BenchmarkDotNet.Artifacts/
 
 # .NET Core
 project.lock.json
+*appsetting.json
 project.fragment.lock.json
 artifacts/
 
