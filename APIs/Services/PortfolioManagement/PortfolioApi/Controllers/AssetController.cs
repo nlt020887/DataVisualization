@@ -7,31 +7,32 @@ using System.Data;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PortfolioApi.Model;
+using PortfoliApi.Infrastructure;
 
 namespace PortfolioApi.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class PortfolioController : ControllerBase
+    public class AssetController : ControllerBase
     {
-        private readonly ILogger<PortfolioController> _logger;
-        private readonly IPortfolioRepository _portfolioRepository;
-        
-        public PortfolioController(ILogger<PortfolioController> logger,
-            IPortfolioRepository portfolioRepository)
+        private readonly ILogger<AssetController> _logger;
+        private readonly IAssetRepository _assetRepository;
+                         
+        public AssetController(ILogger<AssetController> logger,
+            IAssetRepository assetRepository)
         {
             _logger = logger;
-            _portfolioRepository = portfolioRepository;
+            _assetRepository = assetRepository;
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Response>> GetAllPortfolio(SearchModel model)
+        public async Task<ActionResult<Response>> GetAllAsset(SearchModel model)
         {
             try
             {
-                var result = await _portfolioRepository.GetListPortfolio(model);
+                var result = await _assetRepository.GetListAsset(model);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -42,11 +43,11 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response>> GetAllPortfolioPending(SearchModel model)
+        public async Task<ActionResult<Response>> GetAllAssetPending(SearchModel model)
         {
             try
             {
-                var result = await _portfolioRepository.GetListPortfolioPending(model);
+                var result = await _assetRepository.GetListAssetPending(model);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -57,11 +58,11 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Response>> GetPortfolioPendingById(string PortfolioId)
+        public async Task<ActionResult<Response>> GetAssetPendingById(string AssetId)
         {
             try
             {
-                var result = await _portfolioRepository.GetPortfolioPendingById(PortfolioId);
+                var result = await _assetRepository.GetAssetPendingById(AssetId);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -72,11 +73,11 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Response>> GetPortfolioById(string PortfolioId)
+        public async Task<ActionResult<Response>> GetAssetById(string AssetId)
         {
             try
             {
-                var result = await _portfolioRepository.GetPortfolioById(PortfolioId);
+                var result = await _assetRepository.GetAssetById(AssetId);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -87,13 +88,13 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response>> CreatePortfolio(PortfolioDataModel portfolioDataModel)
+        public async Task<ActionResult<Response>> CreateAsset(AssetDataModel portfolioDataModel)
         {
             try
             {
                 var userName = HttpContext.User.Identity.Name;
                 portfolioDataModel.CreatedUser = userName;
-                var result = await _portfolioRepository.CreatePortfolio(portfolioDataModel);
+                var result = await _assetRepository.CreateAsset(portfolioDataModel);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -104,13 +105,13 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response>> Approve(PortfolioApproveModel portfolioApproveModel)
+        public async Task<ActionResult<Response>> Approve(AssetApproveModel portfolioApproveModel)
         {
             try
             {
                 var userName = HttpContext.User.Identity.Name;
                 portfolioApproveModel.ApprovedUser = userName;
-                var result = await _portfolioRepository.Approve(portfolioApproveModel);
+                var result = await _assetRepository.Approve(portfolioApproveModel);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)

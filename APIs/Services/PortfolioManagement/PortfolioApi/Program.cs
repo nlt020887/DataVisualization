@@ -2,6 +2,7 @@ using JwtAuthenticationManager;
 using Microsoft.Extensions.DependencyInjection;
 using PortfolioApi.Model;
 using PortfolioApi.Infrastructure;
+using PortfoliApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddCustomJwtAuthentication();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<ITaxFeeRepository, TaxFeeRepository>();
+builder.Services.AddScoped<IAssetRepository, AssetRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

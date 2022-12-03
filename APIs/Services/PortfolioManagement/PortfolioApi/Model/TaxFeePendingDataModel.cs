@@ -3,7 +3,7 @@ using System;
 
 namespace PortfolioApi.Model
 {
-    public class TaxFeeDataModel
+    public class TaxFeePendingDataModel
     {
         public string  TaxFeeId { get; set; }
         public String TaxFeeName { get; set; }
@@ -18,7 +18,7 @@ namespace PortfolioApi.Model
         public string Status { get; set; }
         public int RecordNo { get; set; }
 
-        public String? ApprovedUser { get; set; }
+        public string ApprovedUser { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public Boolean IsActive { get; set; }
     }

@@ -35,6 +35,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+/DataVisualization\APIs\Services\System\Accounts.API/appsettings.json
+/DataVisualization\APIs\Services\System\Accounts.API/appsettings.json
+/DataVisualization/APIs/Services/DataVisualiztion/DataTypeManagement.API/appsettings.json
+/DataVisualization/APIs/Services/PortfolioManagement/PortfolioApi/appsettings.json
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

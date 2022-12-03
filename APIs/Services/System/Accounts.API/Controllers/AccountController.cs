@@ -45,23 +45,23 @@ namespace Accounts.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AuthenticationResponse?>> Authenticate([FromBody] AuthenticationRequest authenticationRequest)
+        public async Task<ActionResult> Authenticate([FromBody] AuthenticationRequest authenticationRequest)
         {
             if(string.IsNullOrEmpty(authenticationRequest.UserName)|| string.IsNullOrEmpty(authenticationRequest.Password))
                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
             AuthenticationResponse authenticationResponse = null;
             var user = await _userManager.FindByNameAsync(authenticationRequest.UserName);
             if (user == null)
-                return Unauthorized();
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
             else
             if (!user.EmailConfirmed)
             {
-                return StatusCode(StatusCodes.Status102Processing, new Response { Status = "Error", Message = "Please check your email to confirm your account!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Please check your email to confirm your account!" });
             }
             else
             if (!user.IsEnabled.Value)
             {
-                return StatusCode(StatusCodes.Status102Processing, new Response { Status = "Error", Message = "The account has been locked!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The account has been locked!" });
             }
 
             if (user != null &&
@@ -70,7 +70,7 @@ namespace Accounts.API.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 authenticationResponse = await _jwtTokenHandler.GenerateJwtToken(authenticationRequest,user,roles.ToList<string>());
                 if (authenticationResponse == null)
-                    return Unauthorized();
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
                 else
                 {
                     HttpContext.Response.Cookies.Append("jwtToken", authenticationResponse.JwtToken,
@@ -84,11 +84,11 @@ namespace Accounts.API.Controllers
                     });
                     await _userManager.SetAuthenticationTokenAsync(user, "Jwt", "JwtToken", authenticationResponse.JwtToken);
                     
-                    return authenticationResponse;
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = "",Data = JsonConvert.SerializeObject(authenticationResponse)}); ;
                 }
             }
             else
-              return  StatusCode(StatusCodes.Status401Unauthorized, new Response{ Status = "Error", Message = "UserName or Password is not correct!" });
+              return  StatusCode(StatusCodes.Status200OK, new Response{ Status = "Error", Message = "UserName or Password is not correct!" });
 
         }
 
@@ -101,13 +101,13 @@ namespace Accounts.API.Controllers
                 var user = _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
                 if (user == null || !(await _userManager.CheckPasswordAsync(user.Result, model.OldPassword)))
                 {
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again.!" });
                 }
                 else
                 {
                     var result   = await _userManager.ChangePasswordAsync(user.Result, model.OldPassword, model.NewPassword);
                     if (!result.Succeeded)
-                        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again." });
+                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again." });
                 }
 
                 return Ok(new Response
@@ -118,7 +118,7 @@ namespace Accounts.API.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            return BadRequest();
+            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again.!" }); 
         }
 
         [HttpPost]
@@ -131,8 +131,7 @@ namespace Accounts.API.Controllers
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user == null || !user.IsEnabled.Value)
                     {
-                        // Don't reveal that the user does not exist or is not confirmed
-                        return BadRequest();
+                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user has not been enabled!" });
                     }
                 
                 var emailTo = new List<EmailAddress>();
@@ -154,12 +153,11 @@ namespace Accounts.API.Controllers
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = ex.Message});
                 }
             }
-
-            // If we got this far, something failed, redisplay form
-            return BadRequest();
+            
+            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "something failed!" });
         }
 
 
@@ -167,16 +165,16 @@ namespace Accounts.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if(string.IsNullOrEmpty(model.Email))
-                return StatusCode(StatusCodes.Status204NoContent, new Response { Status = "Error", Message = "Email can not empty!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email can not empty!" });
 
             if (string.IsNullOrEmpty(model.Password) || !model.Password.Equals(model.PasswordConfirm))
-                return StatusCode(StatusCodes.Status204NoContent, new Response { Status = "Error", Message = "Invaild confirmation password!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Invaild confirmation password!" });
             var userExists = await _userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Email already exists!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email already exists!" });
             userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User already exists!" });
 
             ApplicationUser user = new()
             {
@@ -193,7 +191,7 @@ namespace Accounts.API.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
             else // generation of the email token
             {
                 var _code = _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -228,7 +226,7 @@ namespace Accounts.API.Controllers
 
         private async Task<String> GetContentResetPass(string link)
         {
-            string html = string.Format("<a href =\"{0}\"> Click this link for reset password </a>", link);
+            string html = string.Format("<a href =\"{0}\"> Click this link to reset password </a>", link);
             return html;
         }
 
@@ -236,9 +234,10 @@ namespace Accounts.API.Controllers
         public async Task<IActionResult> VerifyEmail(string userId,string Result)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return BadRequest();
+            if (user == null)
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist." });
             var result = await _userManager.ConfirmEmailAsync(user, Result);
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 // Select the user, and then add the admin role to the user                 
                 if (!await _userManager.IsInRoleAsync(user, "VISITOR"))
@@ -246,24 +245,32 @@ namespace Accounts.API.Controllers
                     //_logger.LogInformation("Adding sysadmin to Admin role");
                     try
                     {
-                       // await _roleManager.CreateAsync(new IdentityRole() { Id = "MD_PORTFOLIO_ADD", Name = "MD_PORTFOLIO_ADD" });
+                        // await _roleManager.CreateAsync(new IdentityRole() { Id = "MD_PORTFOLIO_ADD", Name = "MD_PORTFOLIO_ADD" });
                         var userResult = await _userManager.AddToRoleAsync(user, "VISITOR");
                     }
                     catch (Exception exx)
                     {
-                        throw exx;
+                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = exx.Message });
                     }
-                    
+
                 }
 
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Confirn your email successfully!"                    
+                    Message = "Confirn your email successfully!"
                 });
-            }    
+            }
             else
-                return BadRequest();
+            {
+                string err = string.Empty;
+                if(result.Errors!=null && result.Errors.Count()>0)
+                {
+                    var error = result.Errors.First();
+                    err = error?.Description;   
+                }
+              return  StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = err});
+            }
         }
 
         [HttpPost]
@@ -272,14 +279,10 @@ namespace Accounts.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
             if(string.IsNullOrEmpty(resetPasswordModel.Password) || !string.Equals(resetPasswordModel.Password,resetPasswordModel.ConfirmPassword))
-                return Ok(new Response
-                {
-                    Status = "Error",
-                    Message = "The password is correct!"
-                });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The password is correct!" });            
             var user = await _userManager.FindByIdAsync(resetPasswordModel.UserId);
             if (user == null)
-                return BadRequest();
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!" });
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
             if (!resetPassResult.Succeeded)
             {
@@ -289,11 +292,8 @@ namespace Accounts.API.Controllers
                     ModelState.TryAddModelError(error.Code, error.Description);
                     mes = error.Description;
                 }
-                return Ok(new Response
-                {
-                    Status = "Error",
-                    Message = mes
-                });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = mes });
+                
             }
             return Ok(new Response
             {
@@ -314,13 +314,18 @@ namespace Accounts.API.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> GetListUser(int pageNumber = 1, int pageSize = 5)
+        public async Task<IActionResult> GetListUser(UserSearchModel model)
         {
             try
             {
-                var qry = _userManager.Users.Where(u => u.Id != String.Empty)
+                var qry = _userManager.Users.Where(u => u.Id != String.Empty && (string.IsNullOrEmpty(model.Keyword) ||
+                u.NormalizedUserName == model.Keyword.Trim().ToUpper()
+                || u.NormalizedEmail == model.Keyword.Trim().ToUpper())
+                && (u.IsEnabled == model.IsEnable)
+                && (model.IsEmailConfirm==null ||  u.EmailConfirmed == model.IsEmailConfirm)
+                )
                         .Select(u => new UserInfoResponse
                         {
                             UserId = u.Id,
@@ -338,7 +343,7 @@ namespace Accounts.API.Controllers
                 //var values =  new PaginatedList<UserInfoResponse>(qry,qry.Count,pageNumber, pageSize);
                 //IEnumerable<UserInfoResponse> products = ;
 
-                PaginatedList<UserInfoResponse> a = await PaginatedList<UserInfoResponse>.CreateAsync(qry, pageNumber, pageSize);
+                PaginatedList<UserInfoResponse> a = await PaginatedList<UserInfoResponse>.CreateAsync(qry, model.PageNumber, model.PageSize);
                 ResutlPagingModel<UserInfoResponse> resutlPagingModel = new ResutlPagingModel<UserInfoResponse>();
                 resutlPagingModel.TotalPages = a.TotalPages;
                 resutlPagingModel.PageIndex = a.PageIndex;
@@ -348,7 +353,7 @@ namespace Accounts.API.Controllers
             }
             catch (Exception EX)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = EX.Message });
             }
         }
 
@@ -360,7 +365,7 @@ namespace Accounts.API.Controllers
             try
             {
                 if(string.IsNullOrEmpty(userId))
-                    return Ok(new Response { Status = "Error", Message = "User id can't empty!", Data = null });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User id can't empty!" });                
 
                 var qry = _userManager.Users.Where(u => u.Id == userId)
                          .Select(u => new UserInfoResponse
@@ -377,9 +382,10 @@ namespace Accounts.API.Controllers
                          });
                 var userInfo = qry.First<UserInfoResponse>();
                 var user = await _userManager.FindByIdAsync(userId);
-                if (user == null) return BadRequest();
+                if (user == null)
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!" });
 
-               IList<string> roleNames =  await _userManager.GetRolesAsync(user);
+                IList<string> roleNames =  await _userManager.GetRolesAsync(user);
                 
                 var roles = _roleManager.Roles.Where(r => roleNames.Contains(r.Name)).ToList();
                 if (roles != null && roles.Count > 0)
@@ -392,7 +398,33 @@ namespace Accounts.API.Controllers
             }
             catch (Exception EX)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = EX.Message });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetFullListUser()
+        {
+
+            try
+            {
+              
+                var qry = _userManager.Users.Where(u => u.IsEnabled==true)
+                         .Select(u => new 
+                         {                       
+                             UserName = u.UserName,
+                             FullName = u.FullName
+                         });
+               
+                if (qry != null && qry.Count() > 0)
+                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(qry) });
+                else
+                    return Ok(new Response { Status = "Success", Message = "User not found!", Data = null });
+            }
+            catch (Exception EX)
+            {
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = EX.Message });
             }
         }
 
@@ -406,9 +438,9 @@ namespace Accounts.API.Controllers
                 var Roles = _roleManager.Roles;
                 
                 if (Roles != null && Roles.Count() > 0)
-                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(Roles) });
+                    return Ok(new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(Roles) });
                 else
-                    return Ok(new Response { Status = "Error", Message = "User not found!", Data = null });
+                    return Ok(new Response { Status = "Error", Message = "Roles are not found!", Data = null });
             }
             catch (Exception EX)
             {
@@ -424,11 +456,11 @@ namespace Accounts.API.Controllers
             try
             {
                 if (user == null ||  string.IsNullOrEmpty(user.UserId))
-                    return Ok(new Response { Status = "Error", Message = "User info is not null!", Data = null });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User info is not null!", Data = null });
 
                 var userCheck = await _userManager.FindByIdAsync(user.UserId);
-                if (userCheck == null) 
-                    return Ok(new Response { Status = "Error", Message = "User does not exist!", Data = null });
+                if (userCheck == null)
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!", Data = null });
 
                 userCheck.FullName = user.FullName;
                 userCheck.Address = user.Address;
@@ -443,7 +475,7 @@ namespace Accounts.API.Controllers
                 if (!removeResult.Succeeded)
                 {
                     ModelState.AddModelError("", "Failed to remove user roles");
-                    return BadRequest(ModelState);
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Failed to remove user roles", Data = null });
                 }
                 //var roles = _roleManager.Roles.Where(r => roleNames.Contains(r.Name)).ToList();
 
@@ -455,14 +487,14 @@ namespace Accounts.API.Controllers
                 if (!addResult.Succeeded)
                 {
                     ModelState.AddModelError("", "Failed to add user roles");
-                    return BadRequest(ModelState);
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Failed to remove user roles", Data = null });
                 }
                 return Ok(new Response { Status = "Success", Message = "Update user successfully!", Data = null });
              
             }
             catch (Exception EX)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = EX.Message });
             }
         }
 
@@ -477,7 +509,7 @@ namespace Accounts.API.Controllers
                     await _roleManager.CreateAsync(new ApplicationRole() { Id = roleInfo.RoleId, Name = roleInfo.RoleName, Description = roleInfo. Description});
                 }
                 else
-                    return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message =  "Role is exist"});
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message =  "The role is exist"});
 
                 return Ok(new Response
                 {
@@ -488,7 +520,7 @@ namespace Accounts.API.Controllers
             }
             catch (Exception EX)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = EX.Message });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = EX.Message });
             }
         }
 
