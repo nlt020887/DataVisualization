@@ -372,13 +372,17 @@ namespace Accounts.API.Controllers
                          {
                              UserId = u.Id,
                              UserName = u.UserName,
+                             FullName = u.FullName,
                              PhoneNumber = u.PhoneNumber,
                              Address = u.Address,
                              Company = u.Company,
                              TaxCode = u.TaxCode,
+                             CreatedDate = u.CreatedDate,                            
+                             IsEnabled = u.IsEnabled.Value,                             
                              Email = u.Email,
                              ConfirmEmailDate = u.ConfirmEmailDate,
-                             EmailConfirmed = u.EmailConfirmed
+                             EmailConfirmed = u.EmailConfirmed,
+                             IsNewsFeed = u.IsNewsFeed                             
                          });
                 var userInfo = qry.First<UserInfoResponse>();
                 var user = await _userManager.FindByIdAsync(userId);
@@ -463,9 +467,19 @@ namespace Accounts.API.Controllers
                     return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!", Data = null });
 
                 userCheck.FullName = user.FullName;
-                userCheck.Address = user.Address;
                 userCheck.PhoneNumber = user.PhoneNumber;
+                userCheck.Email = user.Email;
+                userCheck.Company = user.Company;
+                userCheck.Address = user.Address;
+                userCheck.TaxCode= user.TaxCode;
+                userCheck.IsEnabled = user.IsEnabled;
                 userCheck.IsNewsFeed = user.IsNewsFeed;
+                IdentityResult updateResult = await _userManager.UpdateAsync(userCheck);
+                if (!updateResult.Succeeded)
+                {
+                    ModelState.AddModelError("", "Update fail user info");
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Update fail user info", Data = null });
+                }
 
                 IList<string> roleNames = await _userManager.GetRolesAsync(userCheck);
                 ///check if the user currently has any roles

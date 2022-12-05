@@ -11,19 +11,19 @@ using PortfoliApi.Infrastructure;
 
 namespace PortfolioApi.Infrastructure
 {
-	public class AssetRepository : IAssetRepository
+	public class AssetMarketPriceRepository : IAssetMarketPriceRepository
     {
 		private readonly IConfiguration _configuration;        
         private string ConnectionString
 		{
 			get {return _configuration.GetConnectionString("DefaultConnection"); }
 		}
-        public AssetRepository(IConfiguration configuration)
+        public AssetMarketPriceRepository(IConfiguration configuration)
 		{
 			_configuration = configuration;                     
          }
 			
-        public async Task<int> Approve(AssetApproveModel AssetApproveModel)
+        public async Task<int> Approve(AssetApproveModel approveModel)
 		{
             int resultCode = -1;
 			using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
@@ -32,12 +32,12 @@ namespace PortfolioApi.Infrastructure
 				var trans = db.BeginTransaction();
 				try
 				{
-					const string StoreProcedure_approve = "\"approveasset\"";
+					const string StoreProcedure_approve = "\"approveassetmarketprice\"";
 					var param = new
 					{
-                        v_assetid = AssetApproveModel.AssetId,
-                        v_confirmstatus = AssetApproveModel.ConfirmStatus,
-                        v_approveduser = AssetApproveModel.ApprovedUser
+                        v_assetid = approveModel.AssetId,
+                        v_confirmstatus = approveModel.ConfirmStatus,
+                        v_approveduser = approveModel.ApprovedUser
 					};
 
 					var dynamicParameters = new DynamicParameters();
@@ -64,7 +64,7 @@ namespace PortfolioApi.Infrastructure
             return resultCode;
         }
 
-		public async Task<int> CreateAsset(AssetDataModel AssetDataModel)
+		public async Task<int> CreateAssetMarketPrice(AssetMarketPriceDataModel assetMarketPriceDataModel)
 		{
 			int resultCode = -1;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
@@ -73,21 +73,20 @@ namespace PortfolioApi.Infrastructure
                 var trans = db.BeginTransaction();
                 try
 				{
-					const string StoreProcedure_createAsset = "\"insertasset\"";
+					const string StoreProcedure_createAssetMarketPrice = "\"insertassetmarketprice\"";
 					var param = new
 					{
-						v_assetid = AssetDataModel.AssetId,
-						v_assetname = AssetDataModel.AssetName,
-                        v_assettype = AssetDataModel.AssetType,
-                        v_unitprice = AssetDataModel.UnitPrice,
-						v_createduser = AssetDataModel.CreatedUser,
-                        v_isactive = AssetDataModel.IsActive
+						v_assetid = assetMarketPriceDataModel.AssetId,
+                        v_valuedate = assetMarketPriceDataModel.ValueDate,
+                        v_assetmarketprice = assetMarketPriceDataModel.AssetMarketPrice,                     
+						v_createduser = assetMarketPriceDataModel.CreatedUser,
+                        v_isactive = assetMarketPriceDataModel.IsActive
 					};
 
 					var dynamicParameters = new DynamicParameters();
 					dynamicParameters.AddDynamicParams(param);
 					dynamicParameters.Add("@resultcode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-					var results = await db.ExecuteAsync(StoreProcedure_createAsset, dynamicParameters, trans, null, CommandType.StoredProcedure);
+					var results = await db.ExecuteAsync(StoreProcedure_createAssetMarketPrice, dynamicParameters, trans, null, CommandType.StoredProcedure);
                     resultCode = dynamicParameters.Get<int>("@resultcode");
 
                     if (resultCode == 0)
@@ -115,7 +114,7 @@ namespace PortfolioApi.Infrastructure
 
 		
 
-		public async Task<PagingResponseModel<List<AssetDataModel>>> GetListAsset(SearchModel model)
+		public async Task<PagingResponseModel<List<AssetMarketPriceDataModel>>> SearchAssetMarketPrice(SearchModel model)
 		{
 
 
@@ -126,11 +125,13 @@ namespace PortfolioApi.Infrastructure
             int take = model.PageSize;
 
             const string findAllQuery = @"select count(*) 
-                            from Asset 
-                            where (1=1) and (@keyword is null or assetId=@keyword or assetname like '%'||@keyword||'%');
+                        from AssetMarketPrice
+                        join asset on asset.assetid =AssetMarketPrice.assetid
+                        where (@keyword is null or AssetMarketPrice.assetId=@keyword or asset.assetname like '%'||@keyword||'%');
 
-                        select * from Asset 
-                        where (1=1) and (@keyword is null or assetid=@keyword or assetName like '%'||@keyword||'%')
+                        select * from AssetMarketPrice
+                        join asset on asset.assetid =AssetMarketPrice.assetid
+                        where (@keyword is null or AssetMarketPrice.assetId=@keyword or asset.assetname like '%'||@keyword||'%')
                         offset @Skip limit @Take;"
             ;
             try
@@ -141,9 +142,9 @@ namespace PortfolioApi.Infrastructure
 
                     int count = reader.Read<int>().FirstOrDefault();
 
-                    List<AssetDataModel> AssetDataModelList = reader.Read<AssetDataModel>().ToList();
+                    List<AssetMarketPriceDataModel> AssetMarketPriceDataModelList = reader.Read<AssetMarketPriceDataModel>().ToList();
 
-                    var result = new PagingResponseModel<List<AssetDataModel>>(AssetDataModelList, count, model.PageNumber, model.PageSize);
+                    var result = new PagingResponseModel<List<AssetMarketPriceDataModel>>(AssetMarketPriceDataModelList, count, model.PageNumber, model.PageSize);
                     return result;
 
 				}
@@ -155,7 +156,7 @@ namespace PortfolioApi.Infrastructure
 
 		}
 
-		public async Task<PagingResponseModel<List<AssetPendingDataModel>>> GetListAssetPending(SearchModel model)
+		public async Task<PagingResponseModel<List<AssetMarketPricePendingDataModel>>> SearchAssetMarketPricePending(SearchModel model)
         {
             int maxPagSize = 50;
             model.PageSize = (model.PageSize > 0 && model.PageSize <= maxPagSize) ? model.PageSize : maxPagSize;
@@ -163,11 +164,13 @@ namespace PortfolioApi.Infrastructure
             int take = model.PageSize;
 
             const string findAllQuery = @"select count(*) 
-                            from AssetPending 
-                            where (1=1) and (@keyword is null or assetId=@keyword or assetname like '%'||@keyword||'%');
+                            from AssetMarketPricePending
+                            join asset on asset.assetid =AssetMarketPricePending.assetid
+                            where (@keyword is null or AssetMarketPricePending.assetId=@keyword or asset.assetname like '%'||@keyword||'%');
 
-                        select * from AssetPending 
-                        where (1=1) and (@keyword is null or assetid=@keyword or assetName like '%'||@keyword||'%')
+                        select * from AssetMarketPricePending
+                        join asset on asset.assetid =AssetMarketPricePending.assetid
+                        where (@keyword is null or AssetMarketPricePending.assetId=@keyword or asset.assetname like '%'||@keyword||'%')
                         offset @Skip limit @Take;"
             ;
             try
@@ -178,8 +181,8 @@ namespace PortfolioApi.Infrastructure
 
                     int count = reader.Read<int>().FirstOrDefault();
 
-                    List<AssetPendingDataModel> AssetPendingDataModelList = reader.Read<AssetPendingDataModel>().ToList();
-                    var result = new PagingResponseModel<List<AssetPendingDataModel>>(AssetPendingDataModelList, count, model.PageNumber, model.PageSize);
+                    List<AssetMarketPricePendingDataModel> assetMarketPricePendingDataModelList = reader.Read<AssetMarketPricePendingDataModel>().ToList();
+                    var result = new PagingResponseModel<List<AssetMarketPricePendingDataModel>>(assetMarketPricePendingDataModelList, count, model.PageNumber, model.PageSize);
                     return result;
 
                 }
@@ -191,14 +194,14 @@ namespace PortfolioApi.Infrastructure
 
         }
 
-        public async Task<AssetDataModel> GetAssetById(string AssetId)
+        public async Task<AssetMarketPriceDataModel> GetAssetMarketPriceById(string AssetId)
 		{
-            AssetDataModel result = null;
+            AssetMarketPriceDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM Asset where assetId=@Assetid";
+                const string findQueryById = "SELECT * FROM AssetMarketPrice where assetId=@Assetid";
                 var parameters = new { Assetid = AssetId};
-                var results = await db.QuerySingleOrDefaultAsync<AssetDataModel>(findQueryById, parameters);
+                var results = await db.QuerySingleOrDefaultAsync<AssetMarketPriceDataModel>(findQueryById, parameters);
                // if (results!=null && results.Any())
                     result = results;
             }
@@ -208,32 +211,20 @@ namespace PortfolioApi.Infrastructure
 
 		
 
-		public async Task<AssetPendingDataModel> GetAssetPendingById(string AssetId)
+		public async Task<AssetMarketPricePendingDataModel> GetAssetMarketPricePendingById(string AssetId)
 		{
-            AssetPendingDataModel result = null;
+            AssetMarketPricePendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM AssetPending where AssetId=@Assetid";
+                const string findQueryById = "SELECT * FROM AssetMarketPricePending where AssetId=@Assetid";
                 var parameters = new { Assetid = AssetId };
-                var results = await db.QuerySingleOrDefaultAsync<AssetPendingDataModel>(findQueryById, parameters);
+                var results = await db.QuerySingleOrDefaultAsync<AssetMarketPricePendingDataModel>(findQueryById, parameters);
                 result = results;
             }
            
             return result;
         }
 
-        public async Task<List<AssetDataModel>> GetFullListAsset()
-        {
-            List<AssetDataModel> result = null;
-            using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
-            {
-                const string findQueryById = "SELECT AssetId,AssetName, AssetType FROM Asset where IsActive = true";
-                
-                var results = await db.QueryAsync<AssetDataModel>(findQueryById);
-                result = results.ToList();
-            }
-
-            return result;
-        }
+     
     }
 }

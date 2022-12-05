@@ -256,6 +256,18 @@
       "UpstreamHttpMethod": [ "Post" ]
     },
     {
+      "DownstreamPathTemplate": "/api/Asset/GetFullListAsset",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Asset/GetFullListAsset",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/Asset/GetAssetById",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -386,6 +398,79 @@
         }
       ],
       "UpstreamPathTemplate": "/api/TaxFee/Approve",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    // Asset Market price
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/SearchAssetMarketPrice",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/SearchAssetMarketPrice",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/SearchAssetMarketPricePending",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/SearchAssetMarketPricePending",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/GetAssetMarketPricePendingById",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/GetAssetMarketPricePendingById",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/GetAssetMarketPriceById",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/GetAssetMarketPriceById",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/CreateAssetMarketPrice",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/CreateAssetMarketPrice",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/AssetMarketPrice/Approve",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/AssetMarketPrice/Approve",
       "UpstreamHttpMethod": [ "POST" ]
     }
   ],

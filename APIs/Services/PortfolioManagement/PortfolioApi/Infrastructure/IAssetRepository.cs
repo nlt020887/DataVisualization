@@ -12,5 +12,6 @@ namespace PortfoliApi.Infrastructure
         public Task<AssetPendingDataModel> GetAssetPendingById(string AssetId);
         public Task<AssetDataModel> GetAssetById(string AssetId);
         public Task<int> Approve(AssetApproveModel AssetApproveModel);
+        public Task<List<AssetDataModel>> GetFullListAsset();
     }
 }

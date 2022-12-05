@@ -14,6 +14,7 @@ builder.Services.AddCustomJwtAuthentication();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 builder.Services.AddScoped<ITaxFeeRepository, TaxFeeRepository>();
 builder.Services.AddScoped<IAssetRepository, AssetRepository>();
+builder.Services.AddScoped<IAssetMarketPriceRepository, AssetMarketPriceRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

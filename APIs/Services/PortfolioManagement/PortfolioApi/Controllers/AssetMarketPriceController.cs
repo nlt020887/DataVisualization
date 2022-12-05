@@ -14,25 +14,25 @@ namespace PortfolioApi.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class AssetController : ControllerBase
+    public class AssetMarketPriceController : ControllerBase
     {
-        private readonly ILogger<AssetController> _logger;
-        private readonly IAssetRepository _assetRepository;
+        private readonly ILogger<AssetMarketPriceController> _logger;
+        private readonly IAssetMarketPriceRepository _assetMarketPriceRepository;
                          
-        public AssetController(ILogger<AssetController> logger,
-            IAssetRepository assetRepository)
+        public AssetMarketPriceController(ILogger<AssetMarketPriceController> logger,
+            IAssetMarketPriceRepository assetMarketPriceRepository)
         {
             _logger = logger;
-            _assetRepository = assetRepository;
+            _assetMarketPriceRepository = assetMarketPriceRepository;
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Response>> GetAllAsset(SearchModel model)
+        public async Task<ActionResult<Response>> SearchAssetMarketPrice(SearchModel model)
         {
             try
             {
-                var result = await _assetRepository.GetListAsset(model);
+                var result = await _assetMarketPriceRepository.SearchAssetMarketPrice(model);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -42,12 +42,42 @@ namespace PortfolioApi.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<ActionResult<Response>> GetFullListAsset()
+        [HttpPost]
+        public async Task<ActionResult<Response>> SearchAssetMarketPricePending(SearchModel model)
         {
             try
             {
-                var result = await _assetRepository.GetFullListAsset();
+                var result = await _assetMarketPriceRepository.SearchAssetMarketPricePending(model);
+                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return new Response { Status = "Error", Message = ex.Message, Data = null };
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Response>> GetAssetMarketPricePendingById(string AssetId)
+        {
+            try
+            {
+                var result = await _assetMarketPriceRepository.GetAssetMarketPricePendingById(AssetId);
+                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return new Response { Status = "Error", Message = ex.Message, Data = null };
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Response>> GetAssetMarketPriceById(string AssetId)
+        {
+            try
+            {
+                var result = await _assetMarketPriceRepository.GetAssetMarketPriceById(AssetId);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -58,58 +88,13 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response>> GetAllAssetPending(SearchModel model)
-        {
-            try
-            {
-                var result = await _assetRepository.GetListAssetPending(model);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                return new Response { Status = "Error", Message = ex.Message, Data = null };
-            }
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<Response>> GetAssetPendingById(string AssetId)
-        {
-            try
-            {
-                var result = await _assetRepository.GetAssetPendingById(AssetId);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                return new Response { Status = "Error", Message = ex.Message, Data = null };
-            }
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<Response>> GetAssetById(string AssetId)
-        {
-            try
-            {
-                var result = await _assetRepository.GetAssetById(AssetId);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                return new Response { Status = "Error", Message = ex.Message, Data = null };
-            }
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Response>> CreateAsset(AssetDataModel portfolioDataModel)
+        public async Task<ActionResult<Response>> CreateAssetMarketPrice(AssetMarketPriceDataModel portfolioDataModel)
         {
             try
             {
                 var userName = HttpContext.User.Identity.Name;
                 portfolioDataModel.CreatedUser = userName;
-                var result = await _assetRepository.CreateAsset(portfolioDataModel);
+                var result = await _assetMarketPriceRepository.CreateAssetMarketPrice(portfolioDataModel);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -126,7 +111,7 @@ namespace PortfolioApi.Controllers
             {
                 var userName = HttpContext.User.Identity.Name;
                 portfolioApproveModel.ApprovedUser = userName;
-                var result = await _assetRepository.Approve(portfolioApproveModel);
+                var result = await _assetMarketPriceRepository.Approve(portfolioApproveModel);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
