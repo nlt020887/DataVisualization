@@ -99,7 +99,7 @@
     },
     {
       "UpstreamPathTemplate": "/api/Account/verifyemail",
-      "UpstreamHttpMethod": [ "get" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {

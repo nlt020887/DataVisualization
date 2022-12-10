@@ -7,6 +7,16 @@ namespace Accounts.API.Models
         public string Email { get; set; }
 
     }
+
+    public class VerifyEmailModel
+    {
+        
+        [Required]
+        public string UserId { get; set; }
+        [Required]
+        public string Token { get; set; }
+    }
+
     public class ResetPasswordModel
     {
         [Required]

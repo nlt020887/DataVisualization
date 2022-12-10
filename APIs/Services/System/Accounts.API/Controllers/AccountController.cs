@@ -198,11 +198,11 @@ namespace Accounts.API.Controllers
                 var value = JsonConvert.SerializeObject(new { userId = user.Id, _code = _code });                
                 var emailTo = new List<EmailAddress>();
                 emailTo.Add(new EmailAddress() { DisplayName = user.UserName, Address = user.Email });
-                
-                var confirmationLink = 
+
+                var confirmationLink =
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
-                    + Url.Action(nameof(VerifyEmail),"Account", new {Email=user.Email, userId = user.Id, _code.Result });
-                confirmationLink = confirmationLink.Replace("api/","");
+                    + Url.Action("VerifyEmail", "Account", new { userId = user.Id, Result=_code });
+                confirmationLink = confirmationLink.Replace("api/", "");
                 Task<string> content = GetContent(confirmationLink,user.Email);
 
                 await _emailSender.SendEmailAsync(new MailData(emailTo, "Xác thực đăng ký tài khoản Growth Focused Funds!", content.Result,null));
@@ -239,13 +239,13 @@ namespace Accounts.API.Controllers
             return string.Format(content, email, html);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> VerifyEmail(string userId,string Result)
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailModel verifyEmailModel)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(verifyEmailModel.UserId);
             if (user == null)
                 return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản không tồn tại." });
-            var result = await _userManager.ConfirmEmailAsync(user, Result);
+            var result = await _userManager.ConfirmEmailAsync(user, verifyEmailModel.Token);
             if (result.Succeeded)
             {
                 // Select the user, and then add the admin role to the user                 
