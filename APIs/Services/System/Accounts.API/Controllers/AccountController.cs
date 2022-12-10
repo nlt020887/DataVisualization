@@ -48,20 +48,20 @@ namespace Accounts.API.Controllers
         public async Task<ActionResult> Authenticate([FromBody] AuthenticationRequest authenticationRequest)
         {
             if(string.IsNullOrEmpty(authenticationRequest.UserName)|| string.IsNullOrEmpty(authenticationRequest.Password))
-               return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
+               return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tên đăng nhập hoặc mật khẩu không đúng!" });
             AuthenticationResponse authenticationResponse = null;
             var user = await _userManager.FindByNameAsync(authenticationRequest.UserName);
             if (user == null)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tên đăng nhập hoặc mật khẩu không đúng!" });
             else
             if (!user.EmailConfirmed)
             {
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Please check your email to confirm your account!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản chưa được kích hoạt, vui lòng kiểm tra Email!" });
             }
             else
             if (!user.IsEnabled.Value)
             {
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The account has been locked!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản đã bị khóa, Vui lòng liên hệ quản trị viên!" });
             }
 
             if (user != null &&
@@ -70,7 +70,7 @@ namespace Accounts.API.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 authenticationResponse = await _jwtTokenHandler.GenerateJwtToken(authenticationRequest,user,roles.ToList<string>());
                 if (authenticationResponse == null)
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "UserName or Password is not correct!" });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tên đăng nhập hoặc mật khẩu không đúng!" });
                 else
                 {
                     HttpContext.Response.Cookies.Append("jwtToken", authenticationResponse.JwtToken,
@@ -88,7 +88,7 @@ namespace Accounts.API.Controllers
                 }
             }
             else
-              return  StatusCode(StatusCodes.Status200OK, new Response{ Status = "Error", Message = "UserName or Password is not correct!" });
+              return  StatusCode(StatusCodes.Status200OK, new Response{ Status = "Error", Message = "Tên đăng nhập hoặc mật khẩu không đúng!" });
 
         }
 
@@ -101,24 +101,24 @@ namespace Accounts.API.Controllers
                 var user = _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
                 if (user == null || !(await _userManager.CheckPasswordAsync(user.Result, model.OldPassword)))
                 {
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again.!" });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Thay đổi mật khẩu thất bại! Vui lòng kiểm tra và thử lại!" });
                 }
                 else
                 {
                     var result   = await _userManager.ChangePasswordAsync(user.Result, model.OldPassword, model.NewPassword);
                     if (!result.Succeeded)
-                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again." });
+                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Thay đổi mật khẩu thất bại! Vui lòng kiểm tra và thử lại" });
                 }
 
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Change passwor successfull!"
+                    Message = "Thay đổi mật khẩu thành công!"
                 });
             }
 
             // If we got this far, something failed, redisplay form
-            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Change password failed! Please check user details and try again.!" }); 
+            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Thay đổi mật khẩu thất bại! Vui lòng kiểm tra và thử lại!\"" }); 
         }
 
         [HttpPost]
@@ -131,7 +131,7 @@ namespace Accounts.API.Controllers
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user == null || !user.IsEnabled.Value)
                     {
-                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user has not been enabled!" });
+                        return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản của bạn đã bị khóa, Vui lòng liên hệ quản trị viên!" });
                     }
                 
                 var emailTo = new List<EmailAddress>();
@@ -141,13 +141,13 @@ namespace Accounts.API.Controllers
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
                     + Url.Action("ResetPassword", "Account", new { userId = user.Id, code });
                  confirmationLink = confirmationLink.Replace("api/","");
-                Task<string> content = GetContentResetPass(confirmationLink);
-                await _emailSender.SendEmailAsync(new MailData(emailTo, "Confirm your email", content.Result, null));
+                Task<string> content = GetContentResetPass(confirmationLink,user.Email);
+                await _emailSender.SendEmailAsync(new MailData(emailTo, "Xác thực lấy lại mật khẩu Growth Focused Funds!", content.Result, null));
 
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Email reset passwor send to your email!",
+                    Message = "Đã gửi email, Vui lòng kiểm tra Email của bạn!",
                     Data = code
                 });
                 }
@@ -157,7 +157,7 @@ namespace Accounts.API.Controllers
                 }
             }
             
-            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "something failed!" });
+            return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Lỗi không xác định!" });
         }
 
 
@@ -165,16 +165,16 @@ namespace Accounts.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if(string.IsNullOrEmpty(model.Email))
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email can not empty!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email không được trống!" });
 
             if (string.IsNullOrEmpty(model.Password) || !model.Password.Equals(model.PasswordConfirm))
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Invaild confirmation password!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Mập khẩu không khớp!" });
             var userExists = await _userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email already exists!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Email đã tồn tại đăng ký!" });
             userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tên đăng nhập đã tồn tại!" });
 
             ApplicationUser user = new()
             {
@@ -191,7 +191,7 @@ namespace Accounts.API.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Đăng ký tài khoản không thành công! Vui lòng thử lại" });
             else // generation of the email token
             {
                 var _code = _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -203,31 +203,40 @@ namespace Accounts.API.Controllers
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
                     + Url.Action(nameof(VerifyEmail),"Account", new {Email=user.Email, userId = user.Id, _code.Result });
                 confirmationLink = confirmationLink.Replace("api/","");
-                Task<string> content = GetContent(confirmationLink);
+                Task<string> content = GetContent(confirmationLink,user.Email);
 
-                await _emailSender.SendEmailAsync(new MailData(emailTo,"Confirm your email",content.Result,null));
+                await _emailSender.SendEmailAsync(new MailData(emailTo, "Xác thực đăng ký tài khoản Growth Focused Funds!", content.Result,null));
                 
 
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "User created successfully!  ",
+                    Message = "Đăng ký tài khoản thành công!",
                     Data = value
                 });
             }
 
         }
 
-        private async Task<String> GetContent(string link)
+        private async Task<String> GetContent(string link, string email)
         {
-            string html = string.Format("<a href =\"{0}\"> Verify email </a>",link);
-            return html;
+            string content = @" <span>
+            Xin chào {0} ,<br>
+            Bạn vừa có yêu cầu đăng ký tài khoản hệ thống Growth Funds system.<br>
+            Link xác thực đăng ký: {1}. </br>";
+            string html = string.Format(" <a href =\"{0}\"> Click xác thực email</a>",link);
+            return string.Format(content, email, html);
+            
         }
 
-        private async Task<String> GetContentResetPass(string link)
+        private async Task<String> GetContentResetPass(string link, string email)
         {
-            string html = string.Format("<a href =\"{0}\"> Click this link to reset password </a>", link);
-            return html;
+            string content = @" <span>
+            Xin chào {0} ,<br>
+            Bạn vừa có yêu cầu đặt lại mật khẩu cho tài khoản hệ thống Growth Funds system.<br>
+            Link đặt lại mật khẩu: {1}. </br>";
+            string html = string.Format(" <a href =\"{0}\"> Click link.</a>", link);
+            return string.Format(content, email, html);
         }
 
         [HttpGet]
@@ -235,7 +244,7 @@ namespace Accounts.API.Controllers
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist." });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản không tồn tại." });
             var result = await _userManager.ConfirmEmailAsync(user, Result);
             if (result.Succeeded)
             {
@@ -258,7 +267,7 @@ namespace Accounts.API.Controllers
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Confirn your email successfully!"
+                    Message = "Xác thực email thành công!"
                 });
             }
             else
@@ -279,14 +288,14 @@ namespace Accounts.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
             if(string.IsNullOrEmpty(resetPasswordModel.Password) || !string.Equals(resetPasswordModel.Password,resetPasswordModel.ConfirmPassword))
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The password is correct!" });            
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Mật khẩu không khớp!" });            
             var user = await _userManager.FindByIdAsync(resetPasswordModel.UserId);
             if (user == null)
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản không tồn tại!" });
             var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPasswordModel.Token, resetPasswordModel.Password);
             if (!resetPassResult.Succeeded)
             {
-                string mes = "Reset password fail!";
+                string mes = "Đặt lại mật khẩu không thành công!";
                 foreach (var error in resetPassResult.Errors)
                 {
                     ModelState.TryAddModelError(error.Code, error.Description);
@@ -298,7 +307,7 @@ namespace Accounts.API.Controllers
             return Ok(new Response
             {
                 Status = "Success",
-                Message = "Reset password Success!"
+                Message = "Đặt lại mật khẩu thành công!"
             });
         }
 
@@ -348,7 +357,7 @@ namespace Accounts.API.Controllers
                 resutlPagingModel.TotalPages = a.TotalPages;
                 resutlPagingModel.PageIndex = a.PageIndex;
                 resutlPagingModel.Items = a.ToList<UserInfoResponse>();
-                return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(resutlPagingModel) });
+                return Ok(new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(resutlPagingModel) });
                 
             }
             catch (Exception EX)
@@ -365,7 +374,7 @@ namespace Accounts.API.Controllers
             try
             {
                 if(string.IsNullOrEmpty(userId))
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User id can't empty!" });                
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Mã user không hợp lệ!" });                
 
                 var qry = _userManager.Users.Where(u => u.Id == userId)
                          .Select(u => new UserInfoResponse
@@ -387,7 +396,7 @@ namespace Accounts.API.Controllers
                 var userInfo = qry.First<UserInfoResponse>();
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!" });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản không tồn tại!" });
 
                 IList<string> roleNames =  await _userManager.GetRolesAsync(user);
                 
@@ -396,9 +405,9 @@ namespace Accounts.API.Controllers
                     userInfo.Roles = roles;
 
                 if (qry!=null && qry.Count()>0)
-                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(userInfo)});
+                    return Ok(new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(userInfo)});
                   else
-                    return Ok(new Response { Status = "Error", Message = "User not found!", Data = null});
+                    return Ok(new Response { Status = "Error", Message = "Tài khoản không tồn tại!", Data = null});
             }
             catch (Exception EX)
             {
@@ -422,9 +431,9 @@ namespace Accounts.API.Controllers
                          });
                
                 if (qry != null && qry.Count() > 0)
-                    return Ok(new Response { Status = "Success", Message = "User created successfully!", Data = JsonConvert.SerializeObject(qry) });
+                    return Ok(new Response { Status = "Success", Message = "!", Data = JsonConvert.SerializeObject(qry) });
                 else
-                    return Ok(new Response { Status = "Success", Message = "User not found!", Data = null });
+                    return Ok(new Response { Status = "Success", Message = "Không có dữ liệu!", Data = null });
             }
             catch (Exception EX)
             {
@@ -444,7 +453,7 @@ namespace Accounts.API.Controllers
                 if (Roles != null && Roles.Count() > 0)
                     return Ok(new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(Roles) });
                 else
-                    return Ok(new Response { Status = "Error", Message = "Roles are not found!", Data = null });
+                    return Ok(new Response { Status = "Error", Message = "Danh sách quyền không tồn tại", Data = null });
             }
             catch (Exception EX)
             {
@@ -460,11 +469,11 @@ namespace Accounts.API.Controllers
             try
             {
                 if (user == null ||  string.IsNullOrEmpty(user.UserId))
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User info is not null!", Data = null });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "User Id không khợp lệ", Data = null });
 
                 var userCheck = await _userManager.FindByIdAsync(user.UserId);
                 if (userCheck == null)
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "The user does not exist!", Data = null });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Tài khoản không tồn tại!", Data = null });
 
                 userCheck.FullName = user.FullName;
                 userCheck.PhoneNumber = user.PhoneNumber;
@@ -477,8 +486,8 @@ namespace Accounts.API.Controllers
                 IdentityResult updateResult = await _userManager.UpdateAsync(userCheck);
                 if (!updateResult.Succeeded)
                 {
-                    ModelState.AddModelError("", "Update fail user info");
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Update fail user info", Data = null });
+                    ModelState.AddModelError("", "Lỗi cập nhật thông tin tài khoản");
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Lỗi cập nhật thông tin tài khoản", Data = null });
                 }
 
                 IList<string> roleNames = await _userManager.GetRolesAsync(userCheck);
@@ -503,7 +512,7 @@ namespace Accounts.API.Controllers
                     ModelState.AddModelError("", "Failed to add user roles");
                     return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Failed to remove user roles", Data = null });
                 }
-                return Ok(new Response { Status = "Success", Message = "Update user successfully!", Data = null });
+                return Ok(new Response { Status = "Success", Message = "Cập nhật thông tin tài khoản thành công!", Data = null });
              
             }
             catch (Exception EX)
@@ -528,7 +537,7 @@ namespace Accounts.API.Controllers
                 return Ok(new Response
                 {
                     Status = "Success",
-                    Message = "Confirn your email successfully!"
+                    Message = "Tạo role thành công!"
                 });
 
             }
