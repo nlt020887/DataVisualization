@@ -27,7 +27,7 @@ namespace PortfolioApi.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         public async Task<ActionResult<Response>> GetListTaxFee()
         {
             try
@@ -111,7 +111,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 taxFeeDataModel.CreatedUser = userName;
                 var result = await _taxFeeRepository.CreateTaxFee(taxFeeDataModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Cập nhật thông tin phí thuế thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 taxFeeApproveModel.ApprovedUser = userName;
                 var result = await _taxFeeRepository.Approve(taxFeeApproveModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Duyệt thông tin phí thuế thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {
