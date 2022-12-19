@@ -3,7 +3,7 @@ using PortfolioApi.Model;
 
 namespace PortfolioApi.Infrastructure
 {
-    public interface ITransaction
+    public interface ITransactionRepository
     {
         public Task<PagingResponseModel<List<TransactionDataModel>>> SearchListTransaction(SearchTransactionModel model);
         public Task<CreatedTransacionResponseModel> CreatedTransaction(TransactionDataModel transactionDataModel);        

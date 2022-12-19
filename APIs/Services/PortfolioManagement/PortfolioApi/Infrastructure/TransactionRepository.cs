@@ -7,14 +7,14 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace PortfolioApi.Infrastructure
 {
-    public class Transaction : ITransaction
+    public class TransactionRepository : ITransactionRepository
     {
         private readonly IConfiguration _configuration;
         private string ConnectionString
         {
             get { return _configuration.GetConnectionString("DefaultConnection"); }
         }
-        public Transaction(IConfiguration configuration)
+        public TransactionRepository(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -215,30 +215,30 @@ namespace PortfolioApi.Infrastructure
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
                 const string findQueryById = @"SELECT transactionno,
-                transactiondate, 
-                portfolioid,
-                assetid,
-                assetname,
-                dealtype,
-                valuedate, 
-                paymentdate,
-                transactionamount,
-                transactionprice, 
-                transactionvalue,
-                taxfeeid,
-                taxamount,
-                feeamount,
-                note,
-                createddate,
-                createduser,
-                updateddate,
-                updateduser,
-                approveddate,
-                approveduser,
-                approvedstatus,
-                status,
-                isdeleted,
-                orderindex
+                        transactiondate, 
+                        portfolioid,
+                        assetid,
+                        assetname,
+                        case when dealtype=1 then 'BUY' else 'SELL' end as DealTypeName,
+                        valuedate, 
+                        paymentdate,
+                        transactionamount,
+                        transactionprice, 
+                        transactionvalue,
+                        taxfeeid,
+                        taxamount,
+                        feeamount,
+                        note,
+                        createddate,
+                        createduser,
+                        updateddate,
+                        updateduser,
+                        approveddate,
+                        approveduser,
+                        approvedstatus,
+                        status,
+                        isdeleted,
+                        orderindex
                 FROM public.transaction
                 where transactionNo =@transactionno;";
                 var parameters = new { transactionno = TransactionNo };
@@ -258,23 +258,24 @@ namespace PortfolioApi.Infrastructure
             int skip = (model.PageNumber - 1) * model.PageSize;
             int take = model.PageSize;
 
-            const string findAllQuery = @"SELECT count(*)
+            const string findAllQuery = @"SELECT count(*) 
                         FROM public.transaction
-                        where (1=1) 
-                        and (@FromTransactionDate is null or transactiondate >= cast(@FromTransactionDate as date))
-                        and (@ToTransactionDate is null or transactiondate <= cast(@ToTransactionDate  as date)+1)
-                        and (@FromPaymentDate is null or paymentdate >= cast(@FromPaymentDate as date))
-                        and (@ToPaymentDate is null or paymentdate <= cast(@ToPaymentDate  as date)+1)
-                        and (@PortfolioId is null or  portfolioid= @PortfolioId)
-                        and (@AssetId is null or  assetid= @AssetId)
+                        where (@Keyword=null or @Keyword='' or transactionno = @Keyword)                    
+                          and (@IsFromTransactionDate = ''  or transactiondate >= cast(@FromTransactionDate as date))
+                        and (@IsToTransactionDate = ''  or transactiondate <= cast(@ToTransactionDate  as date)+1)
+                        and (@IsFromPaymentDate = ''  or paymentdate >= cast(@FromPaymentDate as date))
+                        and (@IsToPaymentDate = ''  or paymentdate <= cast(@ToPaymentDate  as date)+1)
+                         and (@PortfolioId = null or @PortfolioId = ''  or  portfolioid= @PortfolioId)
+                        and (@AssetId = null or @AssetId = ''  or  assetid= @AssetId)
                         and (@DealType=0 or dealtype=@DealType);
+
 
                        SELECT transactionno,
                         transactiondate, 
                         portfolioid,
                         assetid,
                         assetname,
-                        dealtype,
+                        case when dealtype=1 then 'BUY' else 'SELL' end as DealTypeName,
                         valuedate, 
                         paymentdate,
                         transactionamount,
@@ -295,13 +296,13 @@ namespace PortfolioApi.Infrastructure
                         isdeleted,
                         orderindex
                         FROM public.transaction
-                        where (1=1) 
-                        and (@FromTransactionDate is null or transactiondate >= cast(@FromTransactionDate as date))
-                        and (@ToTransactionDate is null or transactiondate <= cast(@ToTransactionDate  as date)+1)
-                        and (@FromPaymentDate is null or paymentdate >= cast(@FromPaymentDate as date))
-                        and (@ToPaymentDate is null or paymentdate <= cast(@ToPaymentDate  as date)+1)
-                        and (@PortfolioId is null or  portfolioid= @PortfolioId)
-                        and (@AssetId is null or  assetid= @AssetId)
+                        where (@Keyword=null or @Keyword='' or transactionno = @Keyword)      
+                        and (@IsFromTransactionDate = ''  or transactiondate >= cast(@FromTransactionDate as date))
+                        and (@IsToTransactionDate = ''  or transactiondate <= cast(@ToTransactionDate  as date)+1)
+                        and (@IsFromPaymentDate = ''  or paymentdate >= cast(@FromPaymentDate as date))
+                        and (@IsToPaymentDate = ''  or paymentdate <= cast(@ToPaymentDate  as date)+1)
+                         and (@PortfolioId = null or @PortfolioId = ''  or  portfolioid= @PortfolioId)
+                        and (@AssetId = null or @AssetId = ''  or  assetid= @AssetId)
                         and (@DealType=0 or dealtype=@DealType)
                         offset @Skip limit @Take;"
             ;
@@ -311,10 +312,15 @@ namespace PortfolioApi.Infrastructure
                 {
                     var reader = await db.QueryMultipleAsync(findAllQuery, new { Skip = skip, 
                         Take = take,
+                        Keyword = model.Keyword,
                         FromTransactionDate = model.FromTransactionDate,
+                        IsFromTransactionDate = (model.FromTransactionDate.HasValue==true?"true":""),
                         ToTransactionDate = model.ToTransactionDate,
+                        IsToTransactionDate = (model.ToTransactionDate.HasValue == true ? "true" : ""),
                         FromPaymentDate = model.FromPaymentDate,
+                        IsFromPaymentDate = (model.FromPaymentDate.HasValue == true ? "true" : ""),
                         ToPaymentDate = model.ToPaymentDate,
+                        IsToPaymentDate = (model.ToPaymentDate.HasValue == true ? "true" : ""),
                         PortfolioId = model.PortfolioId ,
                         AssetId = model.AssetId ,
                         DealType = model.DealType   
