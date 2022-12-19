@@ -94,7 +94,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 portfolioDataModel.CreatedUser = userName;
                 var result = await _portfolioRepository.CreatePortfolio(portfolioDataModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Cập nhật thông tin danh mục tài sản thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {
@@ -111,7 +111,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 portfolioApproveModel.ApprovedUser = userName;
                 var result = await _portfolioRepository.Approve(portfolioApproveModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Duyệt thông tin danh mục tài sản thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {

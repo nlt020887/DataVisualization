@@ -95,7 +95,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 portfolioDataModel.CreatedUser = userName;
                 var result = await _assetMarketPriceRepository.CreateAssetMarketPrice(portfolioDataModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Cập nhật thông tin giá trị tài sản thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {
@@ -112,7 +112,7 @@ namespace PortfolioApi.Controllers
                 var userName = HttpContext.User.Identity.Name;
                 portfolioApproveModel.ApprovedUser = userName;
                 var result = await _assetMarketPriceRepository.Approve(portfolioApproveModel);
-                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+                return new Response { Status = "Success", Message = "Duyệt thông tin giá trị tài sản thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
             {
