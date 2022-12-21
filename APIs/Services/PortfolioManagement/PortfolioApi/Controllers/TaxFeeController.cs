@@ -27,7 +27,7 @@ namespace PortfolioApi.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         public async Task<ActionResult<Response>> GetListTaxFee()
         {
             try
