@@ -1,24 +1,26 @@
 ﻿namespace PortfolioApi.Model
 {
-    public class TransactionDataModel
+    public class InvestorDataModel
     {
         public Int32? OrderIndex { get; set; }
 
-        public DateTime TransactionDate { get; set; }
+        public DateTime DealDate { get; set; }
 
+        public String InvestorUser { get; set; }
+        public String InvestorName { get; set; }
+        public string PortfolioId { get; set; }
+        public string? PortfolioName { get; set; }
         public DateTime ValueDate { get; set; }
 
         public DateTime PaymentDate { get; set; }
 
-        public Decimal TransactionAmount { get; set; }
+        public Decimal NoOfCert { get; set; }
 
-        public Decimal TransactionPrice { get; set; }
+        public Decimal CertPrice { get; set; }
 
         public Decimal TransactionValue { get; set; }
 
-        public decimal? TaxAmount { get; set; }
-
-        public decimal? FeeAmount { get; set; }
+        public decimal? Fee { get; set; }
 
         public DateTime? CreatedDate { get; set; }
 
@@ -44,12 +46,6 @@
             }
         }
 
-        public string PortfolioId { get; set; }
-
-        public string AssetId { get; set; }
-
-        public string? AssetName { get; set; }
-
         public string? ApprovedUser { get; set; }
 
         public string? Note { get; set; }
@@ -62,34 +58,32 @@
 
         public string? UpdatedUser { get; set; }
 
-        public string TaxFeeId { get; set; }
-
-        public string? TransactionNo { get; set; }
+        public string? InvestorNo { get; set; }
 
     }
 
-    public class TransactionApproveModel
+    public class InvestorApproveModel
     {
-        public string TransactionNo { get; set; }
+        public string InvestorNo { get; set; }
 
         public int ConfirmStatus { get; set; }
 
         public string? ApprovedUser { get; set; }
     }
 
-    public class TransactionDeleteModel
+    public class InvestorDeleteModel
     {
-        public string TransactionNo { get; set; }
+        public string InvestorNo { get; set; }
 
         public string? DeletedUser { get; set; }
     }
-    public class CreatedTransacionResponseModel
+    public class CreatedInvestorResponseModel
     {
         public int ResultCode { get; set; } = -1;
-        public string TransactionNo { get; set; }
+        public string InvestorNo { get; set; }
     }
 
-    public class SearchTransactionModel
+    public class SearchInvestorModel
     {
         public int PageSize { get; set; }
         public int PageNumber { get; set; }

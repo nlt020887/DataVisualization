@@ -545,6 +545,79 @@
       ],
       "UpstreamPathTemplate": "/api/Transaction/Approve",
       "UpstreamHttpMethod": [ "POST" ]
+    },
+    //Investor
+    {
+      "DownstreamPathTemplate": "/api/Investor/SearchListInvestor",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/SearchListInvestor",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Investor/Delete",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/Delete",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Investor/GetInvestorByTransNo",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/GetInvestorByTransNo",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Investor/GetNewInvestorNo",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/GetNewInvestorNo",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Investor/CreateInvestor",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/CreateInvestor",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Investor/Approve",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Investor/Approve",
+      "UpstreamHttpMethod": [ "POST" ]
     }
   ],
   "GlobalConfiguration": {

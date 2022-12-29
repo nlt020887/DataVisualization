@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace WebApiGateway
@@ -37,7 +39,16 @@ namespace WebApiGateway
                 .AllowAnyHeader()
                 .AllowCredentials());
             });
-
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(60);
+                options.ExcludedHosts.Add("localhost");
+                options.ExcludedHosts.Add("www.gff.fin.com.vn");
+                options.ExcludedHosts.Add("gff.fin.com.vn");
+                options.ExcludedHosts.Add("165.22.103.123");
+            });
             services.AddOcelot();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -70,6 +81,7 @@ namespace WebApiGateway
             });
             
             app.UseCors("CorsPolicy");
+            app.UseHsts();
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
             await app.UseOcelot();
         }

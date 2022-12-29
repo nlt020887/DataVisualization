@@ -31,6 +31,7 @@ namespace WebApiGateway
                           .Enrich.FromLogContext()
                           .WriteTo.File(@"Logs/log.txt", rollingInterval: RollingInterval.Day);
                   });
+                 
               })
               .ConfigureAppConfiguration((hostingContext, config) =>
               {
