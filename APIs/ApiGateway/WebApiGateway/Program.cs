@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,14 @@ namespace WebApiGateway
               .ConfigureWebHostDefaults(webBuilder =>
               {
                   webBuilder.UseStartup<Startup>();
+                  webBuilder.UseSerilog((_, config) =>
+                  {
+                      config
+                          .MinimumLevel.Information()
+                          .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                          .Enrich.FromLogContext()
+                          .WriteTo.File(@"Logs/log.txt", rollingInterval: RollingInterval.Day);
+                  });
               })
               .ConfigureAppConfiguration((hostingContext, config) =>
               {
@@ -28,5 +38,8 @@ namespace WebApiGateway
                   .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
                   .AddJsonFile("OcelotConfiguration.json", optional: false, reloadOnChange: true);
               });
+            
+                    
+            
     }
 }

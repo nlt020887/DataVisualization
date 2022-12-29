@@ -79,7 +79,7 @@ namespace PortfolioApi.Infrastructure
 						v_assetid = AssetDataModel.AssetId,
 						v_assetname = AssetDataModel.AssetName,
                         v_assettype = AssetDataModel.AssetType,
-                        v_unitprice = AssetDataModel.UnitPrice,
+                        v_unitprice = AssetDataModel.UnitPrice.Value,
 						v_createduser = AssetDataModel.CreatedUser,
                         v_isactive = AssetDataModel.IsActive
 					};
@@ -196,7 +196,10 @@ namespace PortfolioApi.Infrastructure
             AssetDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM Asset where assetId=@Assetid";
+                const string findQueryById = @"SELECT trim(assetid) AssetId, assetname, assettype, createduser, createdate, updateuser,
+                    updatedate, status, recordno, approveduser, approveddate, isactive, isdeleted, unitprice
+	                FROM public.asset
+                    where assetId = @Assetid";
                 var parameters = new { Assetid = AssetId};
                 var results = await db.QuerySingleOrDefaultAsync<AssetDataModel>(findQueryById, parameters);
                // if (results!=null && results.Any())
@@ -213,7 +216,10 @@ namespace PortfolioApi.Infrastructure
             AssetPendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM AssetPending where AssetId=@Assetid";
+                const string findQueryById = @"SELECT trim(assetid) assetid, assetname, 
+assettype, createduser, createdate, updateuser, 
+updatedate, status, recordno, approveduser, approveddate, isactive, isdeleted, unitprice
+	FROM public.assetpending where AssetId=@Assetid";
                 var parameters = new { Assetid = AssetId };
                 var results = await db.QuerySingleOrDefaultAsync<AssetPendingDataModel>(findQueryById, parameters);
                 result = results;

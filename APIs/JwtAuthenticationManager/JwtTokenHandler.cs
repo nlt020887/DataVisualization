@@ -14,9 +14,9 @@ namespace JwtAuthenticationManager
 {
     public class JwtTokenHandler
     {
-        public const string JWT_SECURITY_KEY = "yPkCqn4kSWLtaJwXvN2jGzpQRyTZ3gdXkt7FeBJP";
+        public const string JWT_SECURITY_KEY = "HSko5EsTIfHoBhrc4sgmKC5vXKymRnb04viu24bBsfC9ewh7HVtIMaK8AL94JP9CXZAoCdxvP6Ubul1zOszZaOAtgEV0MTy5lRbMymO9FEcNUEff4kVmj3mf7EjPTZGRfFgv/6!!@#$%z&*v";
         public const string ISSUE_URL = "http://localhost:8080/";
-        private const int JWT_TOKEN_VALIDITY_MINS = 20;      
+        private const int JWT_TOKEN_VALIDITY_MINS = 1440;      
 
         public async Task<AuthenticationResponse?> GenerateJwtToken(AuthenticationRequest authenticationRequest,IdentityUser identityUser, List<string> roles)
         {

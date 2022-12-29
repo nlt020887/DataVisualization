@@ -103,13 +103,24 @@ namespace PortfolioApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response>> CreateAsset(AssetDataModel portfolioDataModel)
+        public async Task<ActionResult<Response>> CreateAsset(AssetDataModel assetDataModel)
         {
             try
             {
+                if(assetDataModel == null)
+                  return  new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+                if (string.IsNullOrEmpty(assetDataModel.AssetId) || string.IsNullOrEmpty(assetDataModel.AssetName))
+                    return new Response { Status = "Error", Message = "Mã tài sản và tên tài sản không được trống!", Data = null };
+                if (assetDataModel.UnitPrice == null || assetDataModel.UnitPrice<0)
+                    return new Response { Status = "Error", Message = "Giá đơn vị phải lớn hơn 0!", Data = null };
+                if (string.IsNullOrEmpty(assetDataModel.AssetType))
+                    return new Response { Status = "Error", Message = "Loại tài sản không hợp lệ!", Data = null };
                 var userName = HttpContext.User.Identity.Name;
-                portfolioDataModel.CreatedUser = userName;
-                var result = await _assetRepository.CreateAsset(portfolioDataModel);
+                if (string.IsNullOrEmpty(userName))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+
+                assetDataModel.CreatedUser = userName;
+                var result = await _assetRepository.CreateAsset(assetDataModel);
                 return new Response { Status = "Success", Message = "Cập nhật thông tin danh mục tài sản thành công!", Data = JsonConvert.SerializeObject(result) };
             }
             catch (Exception ex)
@@ -125,6 +136,8 @@ namespace PortfolioApi.Controllers
             try
             {
                 var userName = HttpContext.User.Identity.Name;
+                if (string.IsNullOrEmpty(userName))
+                    new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
                 portfolioApproveModel.ApprovedUser = userName;
                 var result = await _assetRepository.Approve(portfolioApproveModel);
                 return new Response { Status = "Success", Message = "Duyệt thông tin danh mục tài sản thành công!", Data = JsonConvert.SerializeObject(result) };

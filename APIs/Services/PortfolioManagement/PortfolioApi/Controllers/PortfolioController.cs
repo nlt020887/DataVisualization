@@ -92,6 +92,10 @@ namespace PortfolioApi.Controllers
             try
             {
                 var userName = HttpContext.User.Identity.Name;
+                if (portfolioDataModel == null || string.IsNullOrEmpty(userName))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+                if (string.IsNullOrEmpty(portfolioDataModel.PortfolioId) || string.IsNullOrEmpty(portfolioDataModel.PortfolioName))
+                    return new Response { Status = "Error", Message = "Mã danh mục và tên danh mục không được trống!", Data = null };
                 portfolioDataModel.CreatedUser = userName;
                 var result = await _portfolioRepository.CreatePortfolio(portfolioDataModel);
                 return new Response { Status = "Success", Message = "Cập nhật thông tin danh mục tài sản thành công!", Data = JsonConvert.SerializeObject(result) };

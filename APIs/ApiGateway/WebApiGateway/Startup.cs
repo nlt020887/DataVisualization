@@ -44,6 +44,7 @@ namespace WebApiGateway
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiGateway", Version = "v1" });
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +70,7 @@ namespace WebApiGateway
             });
             
             app.UseCors("CorsPolicy");
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
             await app.UseOcelot();
         }
     }

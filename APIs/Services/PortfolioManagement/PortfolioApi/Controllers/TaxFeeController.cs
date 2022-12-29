@@ -109,6 +109,10 @@ namespace PortfolioApi.Controllers
             try
             {
                 var userName = HttpContext.User.Identity.Name;
+                if (taxFeeDataModel == null || string.IsNullOrEmpty(userName))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+                if (string.IsNullOrEmpty(taxFeeDataModel.TaxFeeId) || string.IsNullOrEmpty(taxFeeDataModel.TaxFeeName))
+                    return new Response { Status = "Error", Message = "Mã thuế phí và tên tên thuế phí không được trống!", Data = null };
                 taxFeeDataModel.CreatedUser = userName;
                 var result = await _taxFeeRepository.CreateTaxFee(taxFeeDataModel);
                 return new Response { Status = "Success", Message = "Cập nhật thông tin phí thuế thành công!", Data = JsonConvert.SerializeObject(result) };
@@ -126,6 +130,8 @@ namespace PortfolioApi.Controllers
             try
             {
                 var userName = HttpContext.User.Identity.Name;
+                if (taxFeeApproveModel == null || string.IsNullOrEmpty(userName)||string.IsNullOrEmpty(taxFeeApproveModel.TaxFeeId))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
                 taxFeeApproveModel.ApprovedUser = userName;
                 var result = await _taxFeeRepository.Approve(taxFeeApproveModel);
                 return new Response { Status = "Success", Message = "Duyệt thông tin phí thuế thành công!", Data = JsonConvert.SerializeObject(result) };

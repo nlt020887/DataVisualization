@@ -24,7 +24,9 @@ namespace PortfolioApi.Infrastructure
             {
                 using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
                 {
-                    const string findAllQuery = "SELECT * FROM TaxFee;";
+                    const string findAllQuery = @"SELECT trim(taxfeeid) taxfeeid, taxfeename, valuedate, taxrate, feerate, createduser, 
+createdate, updateuser, updatedate, status, recordno, approveduser, approveddate, isactive 
+FROM TaxFee;";
                     var results = await db.QueryAsync<TaxFeeDataModel>(findAllQuery);
                     return results;
                 }
@@ -163,7 +165,9 @@ namespace PortfolioApi.Infrastructure
             TaxFeePendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM TaxfeePending where TaxFeeId=@TaxfeeId";
+                const string findQueryById = @"SELECT trim(taxfeeid) taxfeeid, taxfeename, valuedate, taxrate, feerate, createduser, createdate, 
+updateuser, updatedate, status, recordno, approveduser, approveddate, isactive
+FROM TaxfeePending where TaxFeeId=@TaxfeeId";
                 var parameters = new { TaxfeeId = TaxFeeId };
                 var results = await db.QuerySingleOrDefaultAsync<TaxFeePendingDataModel>(findQueryById, parameters);
                 // if (results!=null && results.Any())
@@ -178,7 +182,9 @@ namespace PortfolioApi.Infrastructure
             TaxFeeDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM Taxfee where TaxFeeId=@TaxfeeId";
+                const string findQueryById = @"SELECT trim(taxfeeid) taxfeeid, taxfeename, valuedate, taxrate, feerate, createduser, 
+createdate, updateuser, updatedate, status, recordno, approveduser, approveddate, isactive 
+FROM Taxfee where TaxFeeId=@TaxfeeId";
                 var parameters = new { TaxfeeId = TaxFeeId };
                 var results = await db.QuerySingleOrDefaultAsync<TaxFeeDataModel>(findQueryById, parameters);
                 // if (results!=null && results.Any())

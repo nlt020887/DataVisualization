@@ -92,7 +92,17 @@ namespace PortfolioApi.Controllers
         {
             try
             {
+                
                 var userName = HttpContext.User.Identity.Name;
+                if (portfolioDataModel == null || string.IsNullOrEmpty(userName))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+
+                if(string.IsNullOrEmpty(portfolioDataModel.AssetId))
+                    return new Response { Status = "Error", Message = "Mã tài sản không hợp lệ!", Data = null };
+
+                if (portfolioDataModel.ValueDate==null || portfolioDataModel.ValueDate.Value<= DateTime.MinValue)
+                    return new Response { Status = "Error", Message = "Ngày giá trị không hợp lệ!", Data = null };
+
                 portfolioDataModel.CreatedUser = userName;
                 var result = await _assetMarketPriceRepository.CreateAssetMarketPrice(portfolioDataModel);
                 return new Response { Status = "Success", Message = "Cập nhật thông tin giá trị tài sản thành công!", Data = JsonConvert.SerializeObject(result) };

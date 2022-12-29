@@ -210,7 +210,9 @@ namespace PortfolioApi.Infrastructure
             PortfolioDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM Portfolio where \"PortfolioId\"=@portfolioid";
+                const string findQueryById = @"SELECT Trim(""PortfolioId"") PortfolioId, ""PortfolioName"", ""TaxFeeId"", ""CreatedUser"", ""CreateDate"", ""UpdateUser"", 
+            ""UpdateDate"", ""Status"", ""RecordNo"", ""ApprovedUser"", ""ApprovedDate"", ""IsActive""
+                FROM Portfolio where ""PortfolioId""=@portfolioid";
                 var parameters = new { portfolioid = PortfolioId};
                 var results = await db.QuerySingleOrDefaultAsync<PortfolioDataModel>(findQueryById, parameters);
                // if (results!=null && results.Any())
@@ -233,7 +235,9 @@ namespace PortfolioApi.Infrastructure
             PortfolioPendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM PortfolioPending where \"PortfolioId\"=@portfolioid";
+                const string findQueryById = @"SELECT trim(""PortfolioId"") PortfolioId, ""PortfolioName"", ""TaxFeeId"", ""CreatedUser"",
+""CreateDate"", ""UpdateUser"", ""UpdateDate"", ""Status"", ""RecordNo"", ""ApprovedUser"", ""ApprovedDate"", ""IsActive""
+FROM PortfolioPending where ""PortfolioId""=@portfolioid";
                 var parameters = new { portfolioid = PortfolioId };
                 var results = await db.QuerySingleOrDefaultAsync<PortfolioPendingDataModel>(findQueryById, parameters);
                 result = results;

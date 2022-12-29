@@ -77,7 +77,6 @@ namespace PortfolioApi.Controllers
         {
             try
             {
-
                 if (model == null || string.IsNullOrEmpty(model.TransactionNo))
                     return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
                 model.DeletedUser = HttpContext.User.Identity.Name;
@@ -96,8 +95,23 @@ namespace PortfolioApi.Controllers
         {
             try
             {
+                if(model==null)
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+                if (string.IsNullOrEmpty(model.AssetId))
+                    return new Response { Status = "Error", Message = "Vui lòng chọn tài sản!", Data = null };
+                if (string.IsNullOrEmpty(model.PortfolioId))
+                    return new Response { Status = "Error", Message = "Vui lòng chọn danh mục đầu tư!", Data = null };
+                if (string.IsNullOrEmpty(model.TaxFeeId))
+                    return new Response { Status = "Error", Message = "Vui lòng chọn Loại thuế phí!", Data = null };
+                if (model.TransactionAmount<=0)
+                    return new Response { Status = "Error", Message = "Vui lòng nhập Số lượng giao dịch!", Data = null };
+                if (model.TransactionPrice <= 0)
+                    return new Response { Status = "Error", Message = "Vui lòng nhập giá giao dịch!", Data = null };
+                if (model.ValueDate==null || model.ValueDate < DateTime.Now)
+                    return new Response { Status = "Error", Message = "Ngày giá trị phải lớn hơn bằng ngày hiện tại!", Data = null };
                 var userName = HttpContext.User.Identity.Name;
                 model.CreatedUser = userName;
+                
                 var result = await _TransactionRepository.CreatedTransaction(model);
                 return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
             }

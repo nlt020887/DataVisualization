@@ -194,14 +194,14 @@ namespace Accounts.API.Controllers
                 return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = "Đăng ký tài khoản không thành công! Vui lòng thử lại" });
             else // generation of the email token
             {
-                var _code = _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var _code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var value = JsonConvert.SerializeObject(new { userId = user.Id, _code = _code });                
                 var emailTo = new List<EmailAddress>();
                 emailTo.Add(new EmailAddress() { DisplayName = user.UserName, Address = user.Email });
 
                 var confirmationLink =
                     _configuration.GetSection("EmailConfiguration").Get<MailSettings>().HostName
-                    + Url.Action("VerifyEmail", "Account", new { userId = user.Id, Result=_code });
+                    + Url.Action("VerifyEmail", "Account", new { userId = user.Id, Result= _code });
                 confirmationLink = confirmationLink.Replace("api/", "");
                 Task<string> content = GetContent(confirmationLink,user.Email);
 
@@ -248,6 +248,8 @@ namespace Accounts.API.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, verifyEmailModel.Token);
             if (result.Succeeded)
             {
+                user.ConfirmEmailDate = DateTime.Now;
+                await _userManager.UpdateAsync(user);
                 // Select the user, and then add the admin role to the user                 
                 if (!await _userManager.IsInRoleAsync(user, "VISITOR"))
                 {
@@ -335,18 +337,24 @@ namespace Accounts.API.Controllers
                 && (u.IsEnabled == model.IsEnable)
                 && (model.IsEmailConfirm==null ||  u.EmailConfirmed == model.IsEmailConfirm)
                 )
-                        .Select(u => new UserInfoResponse
-                        {
-                            UserId = u.Id,
-                            UserName = u.UserName,
-                            PhoneNumber = u.PhoneNumber,
-                            Address = u.Address,
-                            Company = u.Company,
-                            TaxCode = u.TaxCode,
-                            Email = u.Email,
-                            ConfirmEmailDate = u.ConfirmEmailDate,
-                            EmailConfirmed = u.EmailConfirmed
-                        });
+                       .Select(u => new UserInfoResponse
+                       {
+                           UserId = u.Id,
+                           UserName = u.UserName,
+                           FullName = u.FullName,
+                           PhoneNumber = u.PhoneNumber,
+                           Address = u.Address,
+                           Company = u.Company,
+                           TaxCode = u.TaxCode,
+                           CreatedDate = u.CreatedDate,
+                           UpdatedDate = u.UpdatedDate,
+                           UpdatedUser = u.UpdatedUser,
+                           IsEnabled = u.IsEnabled,
+                           Email = u.Email,
+                           ConfirmEmailDate = u.ConfirmEmailDate,
+                           EmailConfirmed = u.EmailConfirmed,
+                           IsNewsFeed = u.IsNewsFeed
+                       });
 
 
                 //var values =  new PaginatedList<UserInfoResponse>(qry,qry.Count,pageNumber, pageSize);
@@ -386,7 +394,9 @@ namespace Accounts.API.Controllers
                              Address = u.Address,
                              Company = u.Company,
                              TaxCode = u.TaxCode,
-                             CreatedDate = u.CreatedDate,                            
+                             CreatedDate = u.CreatedDate,
+                             UpdatedDate = u.UpdatedDate,
+                             UpdatedUser = u.UpdatedUser,
                              IsEnabled = u.IsEnabled.Value,                             
                              Email = u.Email,
                              ConfirmEmailDate = u.ConfirmEmailDate,
@@ -480,6 +490,8 @@ namespace Accounts.API.Controllers
                 userCheck.Email = user.Email;
                 userCheck.Company = user.Company;
                 userCheck.Address = user.Address;
+                userCheck.UpdatedDate = DateTime.Now;
+                userCheck.UpdatedUser = HttpContext.User.Identity.Name;
                 userCheck.TaxCode= user.TaxCode;
                 userCheck.IsEnabled = user.IsEnabled;
                 userCheck.IsNewsFeed = user.IsNewsFeed;

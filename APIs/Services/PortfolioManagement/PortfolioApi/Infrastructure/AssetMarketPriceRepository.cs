@@ -199,7 +199,9 @@ namespace PortfolioApi.Infrastructure
             AssetMarketPriceDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM AssetMarketPrice where assetId=@Assetid";
+                const string findQueryById = @"SELECT trim(assetid) assetid, valuedate, assetmarketprice, createduser, 
+createdate, updateuser, updatedate, status, recordno, approveduser, approveddate, isactive, eodassetmktprice
+                            FROM AssetMarketPrice where assetId=@Assetid";
                 var parameters = new { Assetid = AssetId};
                 var results = await db.QuerySingleOrDefaultAsync<AssetMarketPriceDataModel>(findQueryById, parameters);
                // if (results!=null && results.Any())
@@ -216,7 +218,9 @@ namespace PortfolioApi.Infrastructure
             AssetMarketPricePendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT * FROM AssetMarketPricePending where AssetId=@Assetid";
+                const string findQueryById = @"SELECT trim(assetid) assetid, valuedate, assetmarketprice, createduser, createdate,
+updateuser, updatedate, status, recordno, approveduser, approveddate, isactive, 
+eodassetmktprice FROM AssetMarketPricePending where AssetId=@Assetid";
                 var parameters = new { Assetid = AssetId };
                 var results = await db.QuerySingleOrDefaultAsync<AssetMarketPricePendingDataModel>(findQueryById, parameters);
                 result = results;
