@@ -16,6 +16,7 @@ builder.Services.AddScoped<ITaxFeeRepository, TaxFeeRepository>();
 builder.Services.AddScoped<IAssetRepository, AssetRepository>();
 builder.Services.AddScoped<IAssetMarketPriceRepository, AssetMarketPriceRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IInvestorRepository, InvestorRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

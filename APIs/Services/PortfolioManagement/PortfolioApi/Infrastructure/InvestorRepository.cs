@@ -182,7 +182,7 @@ namespace PortfolioApi.Infrastructure
                 db.Open();
                 try
                 {
-                    const string StoreProcedure_del = "createtinvestornewno";
+                    const string StoreProcedure_del = "createinvestornewno";
                     var param = new
                     {
                         v_dealtype = dealtype,
