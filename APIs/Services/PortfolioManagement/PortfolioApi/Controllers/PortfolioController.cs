@@ -41,6 +41,25 @@ namespace PortfolioApi.Controllers
             }
         }
 
+
+        [HttpGet]
+        public async Task<ActionResult<Response>> GetListPortfolioTaxFeeByUser()
+        {
+            try
+            {
+                var userName = HttpContext.User.Identity.Name;
+                if (string.IsNullOrEmpty(userName))
+                    return new Response { Status = "Error", Message = "Dữ liệu không hợp lệ!", Data = null };
+                var result = await _portfolioRepository.GetListPortfolioTaxFeeByUser(userName);
+                return new Response { Status = "Success", Message = "", Data = JsonConvert.SerializeObject(result) };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return new Response { Status = "Error", Message = ex.Message, Data = null };
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<Response>> GetAllPortfolioPending(SearchModel model)
         {

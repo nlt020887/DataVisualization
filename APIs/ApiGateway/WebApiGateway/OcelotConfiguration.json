@@ -171,6 +171,18 @@
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
+      "DownstreamPathTemplate": "/api/Portfolio/GetListPortfolioTaxFeeByUser",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Portfolio/GetListPortfolioTaxFeeByUser",
+      "UpstreamHttpMethod": [ "GET" ]
+    },    
+    {
       "DownstreamPathTemplate": "/api/Portfolio/GetAllPortfolio",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

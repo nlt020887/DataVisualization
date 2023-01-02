@@ -228,9 +228,33 @@ namespace PortfolioApi.Infrastructure
             return result;
         }
 
-		
+        public async Task<List<PortfolioTaxFeeModel>> GetListPortfolioTaxFeeByUser(string userName)
+        {
+            List<PortfolioTaxFeeModel> result = null;
+            using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
+            {
+                const string findQueryById = @"select trim(portfolio.""PortfolioId"") PortfolioId,
+                ""PortfolioName"",
+                trim(taxfee.taxfeeid) taxfeeid,
+                taxfee.Taxfeename,
+                TaxRate,
+                FeeRate,
+                ""RoleType"",
+                case when ""RoleType"" =1 then 'Manager' else 'Viewer' end RoleTypeName
+                from portfolio
+                join public.portfoliousers
+	                on portfolio.""PortfolioId"" = portfoliousers.""PortfolioId""
+                left join taxfee
+	                on portfolio.""TaxFeeId"" =taxfee.taxfeeid
+                Where portfoliousers.""UserId"" = @userid";
+                var parameters = new { userid = userName };
+                var results = await db.QueryAsync<PortfolioTaxFeeModel>(findQueryById, parameters);
+                result = results.ToList();
+            }
+            return result;
+        }
 
-		public async Task<PortfolioPendingDataModel> GetPortfolioPendingById(string PortfolioId)
+        public async Task<PortfolioPendingDataModel> GetPortfolioPendingById(string PortfolioId)
 		{
             PortfolioPendingDataModel result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))

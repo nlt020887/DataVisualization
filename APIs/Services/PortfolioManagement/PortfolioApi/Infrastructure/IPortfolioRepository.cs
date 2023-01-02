@@ -7,6 +7,7 @@ namespace PortfolioApi.Infrastructure
     public interface IPortfolioRepository
     {
         public Task<PagingResponseModel<List<PortfolioDataModel>>> GetListPortfolio(SearchModel model);
+        public Task<List<PortfolioTaxFeeModel>> GetListPortfolioTaxFeeByUser(string username);
         public Task<int>CreatePortfolio(PortfolioDataModel portfolioDataModel);
         public Task<PagingResponseModel<List<PortfolioPendingDataModel>>> GetListPortfolioPending(SearchModel model);
         public Task<PortfolioPendingDataModel> GetPortfolioPendingById(string PortfolioId);

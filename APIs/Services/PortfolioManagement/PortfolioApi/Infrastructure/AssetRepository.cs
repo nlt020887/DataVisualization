@@ -233,7 +233,7 @@ updatedate, status, recordno, approveduser, approveddate, isactive, isdeleted, u
             List<AssetDataModel> result = null;
             using (IDbConnection db = new Npgsql.NpgsqlConnection(ConnectionString))
             {
-                const string findQueryById = "SELECT AssetId,AssetName, AssetType FROM Asset where IsActive = true";
+                const string findQueryById = "SELECT AssetId,AssetName, AssetType, unitprice FROM Asset where IsActive = true";
                 
                 var results = await db.QueryAsync<AssetDataModel>(findQueryById);
                 result = results.ToList();

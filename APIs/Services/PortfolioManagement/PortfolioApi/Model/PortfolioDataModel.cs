@@ -32,4 +32,16 @@
 
     }
 
+    public class PortfolioTaxFeeModel
+    {   
+        public string PortfolioId { get; set; }
+        public string PortfolioName { get; set; }
+        public string TaxFeeId { get; set; }
+        public string? TaxFeeName { get; set; }
+        public Decimal? TaxRate { get; set; }
+        public Decimal? FeeRate { get; set; }
+        public int RoleType { get; set; }
+        public string RoleTypeName { get; set; }
+    }
+
 }
