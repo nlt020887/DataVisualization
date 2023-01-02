@@ -618,6 +618,19 @@
       ],
       "UpstreamPathTemplate": "/api/Investor/Approve",
       "UpstreamHttpMethod": [ "POST" ]
+    },
+    //Cash
+    {
+      "DownstreamPathTemplate": "/api/CashTransaction/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "portfoliowebapi",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/CashTransaction/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
     }
   ],
   "GlobalConfiguration": {
